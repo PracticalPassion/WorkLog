@@ -11,7 +11,6 @@ import 'package:timing/src/view/macros/CircularTextEidget.dart';
 import 'package:timing/src/view/macros/ContentView.dart';
 import 'package:timing/src/view/macros/EntryTile.dart';
 import 'package:timing/src/view/macros/InfoTile.dart';
-import 'package:timing/src/view/macros/MontlyDisplay.dart';
 import 'package:timing/src/view/macros/VertivalSelection.dart';
 
 class TimeTrackingListPage extends StatefulWidget {
@@ -107,9 +106,10 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
   void _stopCurrentEntry(BuildContext context) {
     final timeTrackingController = Provider.of<TimeTrackingController>(context, listen: false);
     final entry = TimeTrackingEntry(
-      start: _currentStartTime!,
-      end: DateTime.now(),
-      expected_work_hours: 8,
+      // start: _currentStartTime!,
+      // end: DateTime.now(),
+      timeEntries: [TimeEntry(start: _currentStartTime!, end: DateTime.now())],
+      expectedWorkHours: 8,
       description: _currentEntryDescription ?? 'No description',
     );
     timeTrackingController.saveEntry(entry);
@@ -180,7 +180,11 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                   Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                     Expanded(
                       child: VerticalSelection(
-                          data: months.map((month) => month.name).toList(),
+                          data: months
+                              .map((month) => month.getName(
+                                    Localizations.localeOf(context),
+                                  ))
+                              .toList(),
                           selectedIndex: months.indexWhere((month) => month.isSameMonth(timeTrackingController.currentMonth)),
                           onSelect: (index) {
                             setState(() {
@@ -217,13 +221,16 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                               itemBuilder: (context, index) {
                                 final day = daysMonth[index];
                                 final entry = timeTrackingController.entries.firstWhere(
-                                  (entry) => TimeTrackingEntry.isSameDay(entry.start, day),
+                                  (entry) => TimeTrackingEntry.isSameDay(entry.firstStartEntry.start, day),
                                   orElse: () => TimeTrackingEntry(
-                                    start: day,
-                                    end: day.add(const Duration(hours: 0)),
-                                    expected_work_hours: 0,
+                                    timeEntries: [
+                                      TimeEntry(
+                                        start: day,
+                                        end: day.add(const Duration(hours: 0)),
+                                      )
+                                    ],
+                                    expectedWorkHours: 0,
                                     description: '',
-                                    breaks: [],
                                   ),
                                 );
                                 final isZeroHourDay = settingsController.settings?.dailyWorkingHours[DateFormat('EEEE').format(day)] == 0;

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 class Month {
@@ -39,5 +40,9 @@ class Month {
     return (month.year == year) && (month.month == this.month);
   }
 
-  String get name => DateFormat.MMMM().format(DateTime(year, month, 1));
+  String getName(Locale locale) {
+    return DateFormat.MMMM(locale.toString()).format(DateTime(year, month, 1));
+  }
+
+  // String get name => DateFormat.MMMM(LocaleService().locale.toString()).format(DateTime(year, month, 1));
 }

@@ -4,46 +4,107 @@ import 'package:intl/intl.dart';
 import 'package:timing/src/model/Break.dart';
 import 'package:timing/src/model/Month.dart';
 
-class TimeTrackingEntry {
-  int? id;
+class TimeEntry {
   DateTime start;
   DateTime end;
-  double expected_work_hours;
+
+  TimeEntry({
+    required this.start,
+    required this.end,
+  });
+
+  Duration get duration => end.difference(start);
+
+  Map<String, dynamic> toMap() {
+    return {
+      'start': start.toIso8601String(),
+      'end': end.toIso8601String(),
+    };
+  }
+
+  factory TimeEntry.fromMap(Map<String, dynamic> map) {
+    return TimeEntry(
+      start: DateTime.parse(map['start']),
+      end: DateTime.parse(map['end']),
+    );
+  }
+}
+
+class TimeTrackingEntry {
+  int? id;
+  double expectedWorkHours;
   String description;
-  List<Break> breaks;
+  List<TimeEntry> timeEntries;
 
   TimeTrackingEntry({
     this.id,
-    required this.start,
-    required this.end,
-    required this.expected_work_hours,
+    required this.expectedWorkHours,
     required this.description,
-    this.breaks = const [],
-  });
+    required List<TimeEntry> timeEntries,
+  })  : assert(timeEntries.isNotEmpty, 'At least one TimeEntry must be provided.'),
+        this.timeEntries = timeEntries;
 
-  Duration get totalBreakTime => breaks.fold(const Duration(), (total, b) => total + b.duration);
-
-  Duration get netDuration => end.difference(start) - totalBreakTime;
+  Duration get netDuration => timeEntries.fold(const Duration(), (total, t) => total + t.duration);
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'start': start.toIso8601String(),
-      'end': end.toIso8601String(),
-      'expected_work_hours': expected_work_hours,
+      'expected_work_hours': expectedWorkHours,
       'description': description,
+      'time_entries': timeEntries.map((e) => e.toMap()).toList(),
     };
   }
 
   factory TimeTrackingEntry.fromMap(Map<String, dynamic> map) {
     return TimeTrackingEntry(
       id: map['id'],
-      start: DateTime.parse(map['start']),
-      end: DateTime.parse(map['end']),
-      expected_work_hours: map['expected_work_hours'],
+      expectedWorkHours: map['expected_work_hours'],
       description: map['description'],
+      timeEntries: (map['time_entries'] as List).map((e) => TimeEntry.fromMap(e)).toList(),
     );
   }
+
+  // 1. Erster Start-Eintrag
+  TimeEntry get firstStartEntry {
+    return timeEntries.reduce((a, b) => a.start.isBefore(b.start) ? a : b);
+  }
+
+  // 2. Letzter Start-Eintrag
+  TimeEntry get lastStartEntry {
+    return timeEntries.reduce((a, b) => a.start.isAfter(b.start) ? a : b);
+  }
+
+  // 3. Über Nacht Einträge aufteilen
+  void splitOvernightEntries() {
+    List<TimeEntry> splitEntries = [];
+
+    for (var entry in timeEntries) {
+      if (entry.start.day != entry.end.day) {
+        // Start Tag
+        splitEntries.add(TimeEntry(
+          start: entry.start,
+          end: DateTime(entry.start.year, entry.start.month, entry.start.day, 23, 59, 59),
+        ));
+        // End Tag
+        splitEntries.add(TimeEntry(
+          start: DateTime(entry.end.year, entry.end.month, entry.end.day, 0, 0, 0),
+          end: entry.end,
+        ));
+      } else {
+        splitEntries.add(entry);
+      }
+    }
+
+    timeEntries = splitEntries;
+  }
+
+  // 4. Hinzufügen eines TimeEntry
+  void addTimeEntry(TimeEntry newEntry) {
+    timeEntries.add(newEntry);
+    timeEntries.sort((a, b) => a.start.compareTo(b.start)); // Sortieren nach Startzeit
+  }
+
+  // Methoden für Berechnungen und Datenverarbeitung bleiben wie zuvor
 
   static double calculateTotalOvertime(List<TimeTrackingEntry> entries) {
     double totalOvertime = 0.0;
@@ -51,7 +112,7 @@ class TimeTrackingEntry {
       final workDuration = entry.netDuration;
       final workHours = workDuration.inHours;
       final workMinutes = workDuration.inMinutes % 60;
-      final difference = workHours + workMinutes / 60 - entry.expected_work_hours;
+      final difference = workHours + workMinutes / 60 - entry.expectedWorkHours;
       totalOvertime += difference;
     }
     return totalOvertime;
@@ -64,11 +125,11 @@ class TimeTrackingEntry {
 
     double totalOvertime = 0.0;
     for (var entry in entries) {
-      if (entry.start.isAfter(monthStart) && entry.start.isBefore(monthEnd)) {
+      if (entry.timeEntries.any((te) => te.start.isAfter(monthStart) && te.start.isBefore(monthEnd))) {
         final workDuration = entry.netDuration;
         final workHours = workDuration.inHours;
         final workMinutes = workDuration.inMinutes % 60;
-        final difference = workHours + workMinutes / 60 - entry.expected_work_hours;
+        final difference = workHours + workMinutes / 60 - entry.expectedWorkHours;
         totalOvertime += difference;
       }
     }
@@ -82,7 +143,7 @@ class TimeTrackingEntry {
 
     double weeklyHours = 0.0;
     for (var entry in entries) {
-      if (entry.start.isAfter(weekStart) && entry.start.isBefore(weekEnd)) {
+      if (entry.timeEntries.any((te) => te.start.isAfter(weekStart) && te.start.isBefore(weekEnd))) {
         final workDuration = entry.netDuration;
         final workHours = workDuration.inHours;
         final workMinutes = workDuration.inMinutes % 60;
@@ -101,7 +162,6 @@ class TimeTrackingEntry {
       date = date.add(Duration(days: 1));
     }
     days.sort((a, b) => b.compareTo(a));
-
     return days;
   }
 
@@ -129,6 +189,7 @@ class TimeTrackingEntry {
       }
       months.add(Month(year, i));
     }
+    // months.sort((a, b) => b.month.compareTo(a.month));
     return months;
   }
 }

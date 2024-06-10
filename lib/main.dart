@@ -9,6 +9,8 @@ import 'package:timing/src/model/database/database.dart';
 import 'package:timing/src/view/Intoduction.dart';
 import 'package:timing/src/view/home.dart';
 // import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +35,12 @@ class App extends StatelessWidget {
     try {
       return CupertinoApp(
         // remove debug banner
+        locale: const Locale('de', 'DE'), // Standard auf Deutsch setzen
+        supportedLocales: const [
+          Locale('en', 'US'),
+          Locale('de', 'DE'),
+          // Weitere unterstützte Locales hinzufügen
+        ],
         debugShowCheckedModeBanner: false,
         title: 'Time Tracking App',
         localizationsDelegates: [
@@ -50,8 +58,19 @@ class App extends StatelessWidget {
   }
 }
 
-class TimeTrackingApp extends StatelessWidget {
+class TimeTrackingApp extends StatefulWidget {
+  @override
+  _TimeTrackingAppState createState() => _TimeTrackingAppState();
+}
+
+class _TimeTrackingAppState extends State<TimeTrackingApp> {
   final settingsController = SettingsController();
+
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +78,7 @@ class TimeTrackingApp extends StatelessWidget {
       builder: (context, settingsController, _) {
         if (settingsController.settings == null) {
           settingsController.loadUserSettings();
-          return CupertinoPageScaffold(
+          return const CupertinoPageScaffold(
             child: Center(child: CupertinoActivityIndicator()),
           );
         } else {
@@ -69,6 +88,8 @@ class TimeTrackingApp extends StatelessWidget {
     );
   }
 }
+
+
 
 // Future<void> initApp() async {
 //   await Hive.initFlutter();

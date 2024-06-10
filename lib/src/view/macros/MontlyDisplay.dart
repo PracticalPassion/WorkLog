@@ -11,7 +11,7 @@ class MonthDisplay extends StatelessWidget {
     return Container(
       // padding only below
       padding: const EdgeInsets.only(bottom: 16),
-      child: Text(month.name,
+      child: Text(month.getName(Localizations.localeOf(context)),
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

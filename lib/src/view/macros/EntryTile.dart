@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:timing/src/model/TimeEntry.dart';
 
 class EntryTile extends StatelessWidget {
@@ -12,12 +13,12 @@ class EntryTile extends StatelessWidget {
     final workDuration = entry.netDuration;
     final workHours = workDuration.inHours;
     final workMinutes = workDuration.inMinutes % 60;
-    final difference = workHours + workMinutes / 60 - entry.expected_work_hours;
-    final date = entry.start;
+    final difference = workHours + workMinutes / 60 - entry.expectedWorkHours;
+    final date = entry.firstStartEntry.start;
     final formattedDate = "${date.day}.${date.month}.";
-    final formattedWeekDay = _getWeekDay(date.weekday);
-    final formattedStartTime = _formatTime(entry.start);
-    final formattedEndTime = _formatTime(entry.end);
+    final formattedWeekDay = getWeekDayName(date.weekday, Localizations.localeOf(context));
+    final formattedStartTime = _formatTime(entry.firstStartEntry.start);
+    final formattedEndTime = _formatTime(entry.lastStartEntry.end);
 
     return Container(
       // border below each entry
@@ -87,16 +88,11 @@ class EntryTile extends StatelessWidget {
     return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
 
-  String _getWeekDay(int day) {
-    const weekDays = [
-      'Mo.',
-      'Di.',
-      'Mi.',
-      'Do.',
-      'Fr.',
-      'Sa.',
-      'So.',
-    ];
-    return weekDays[day - 1];
+  String getWeekDayName(int day, Locale locale) {
+    // Erstellt ein Datum für den gewünschten Tag
+    DateTime date = DateTime(2024, 1, day);
+    // Nutzt DateFormat für die Kurzform des Wochentags
+    DateFormat dateFormat = DateFormat.E(locale.toString());
+    return dateFormat.format(date);
   }
 }
