@@ -1,14 +1,38 @@
 import 'dart:ffi';
 
 import 'package:intl/intl.dart';
-import 'package:timing/src/model/Break.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:timing/src/model/Month.dart';
+import 'package:timing/src/model/database/database.dart';
+
+class TimeEntryTemplate {
+  DateTime start;
+  DateTime end;
+
+  TimeEntryTemplate({
+    required this.start,
+    required this.end,
+  });
+
+  Future<int> save(Database db) async {
+    return await db.insert('time_entries', toMap());
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'start': start.toIso8601String(),
+      'end': end.toIso8601String(),
+    };
+  }
+}
 
 class TimeEntry {
+  int id;
   DateTime start;
   DateTime end;
 
   TimeEntry({
+    required this.id,
     required this.start,
     required this.end,
   });
@@ -17,6 +41,7 @@ class TimeEntry {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'start': start.toIso8601String(),
       'end': end.toIso8601String(),
     };
@@ -24,55 +49,51 @@ class TimeEntry {
 
   factory TimeEntry.fromMap(Map<String, dynamic> map) {
     return TimeEntry(
+      id: map['id'],
       start: DateTime.parse(map['start']),
       end: DateTime.parse(map['end']),
     );
   }
+
+  static Future<int> saveEntry(TimeEntry entry) async {
+    final dbHelper = DatabaseHelper();
+    final db = await dbHelper.database;
+    var id = await entry.save(db);
+    return id;
+  }
+
+  Future<int> save(Database db) async {
+    return await db.insert('time_entries', toMap());
+  }
+
+  Future<void> update(Database db) async {
+    await db.update('time_entries', toMap(), where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> delete(Database db) async {
+    await db.delete('time_entries', where: 'id = ?', whereArgs: [id]);
+  }
+
+  static Future<List<TimeEntry>> getAll(Database db) async {
+    List<Map<String, dynamic>> maps = await db.query('time_entries');
+    return maps.map((map) => TimeEntry.fromMap(map)).toList();
+  }
 }
 
 class TimeTrackingEntry {
-  int? id;
+  DateTime date;
   double expectedWorkHours;
   String description;
   List<TimeEntry> timeEntries;
 
   TimeTrackingEntry({
-    this.id,
-    required this.expectedWorkHours,
-    required this.description,
-    required List<TimeEntry> timeEntries,
-  })  : assert(timeEntries.isNotEmpty, 'At least one TimeEntry must be provided.'),
-        this.timeEntries = timeEntries;
+    required this.date,
+    this.expectedWorkHours = 8.0,
+    this.description = '',
+    required this.timeEntries,
+  });
 
-  Duration get netDuration => timeEntries.fold(const Duration(), (total, t) => total + t.duration);
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'expected_work_hours': expectedWorkHours,
-      'description': description,
-      'time_entries': timeEntries.map((e) => e.toMap()).toList(),
-    };
-  }
-
-  factory TimeTrackingEntry.fromMap(Map<String, dynamic> map) {
-    return TimeTrackingEntry(
-      id: map['id'],
-      expectedWorkHours: map['expected_work_hours'],
-      description: map['description'],
-      timeEntries: (map['time_entries'] as List).map((e) => TimeEntry.fromMap(e)).toList(),
-    );
-  }
-
-  // 1. Erster Start-Eintrag
-  TimeEntry get firstStartEntry {
-    return timeEntries.reduce((a, b) => a.start.isBefore(b.start) ? a : b);
-  }
-
-  // 2. Letzter Start-Eintrag
-  TimeEntry get lastStartEntry {
-    return timeEntries.reduce((a, b) => a.start.isAfter(b.start) ? a : b);
-  }
+  Duration get netDuration => timeEntries.fold(Duration.zero, (total, entry) => total + entry.duration);
 
   // 3. Über Nacht Einträge aufteilen
   void splitOvernightEntries() {
@@ -82,11 +103,13 @@ class TimeTrackingEntry {
       if (entry.start.day != entry.end.day) {
         // Start Tag
         splitEntries.add(TimeEntry(
+          id: entry.id,
           start: entry.start,
           end: DateTime(entry.start.year, entry.start.month, entry.start.day, 23, 59, 59),
         ));
         // End Tag
         splitEntries.add(TimeEntry(
+          id: entry.id,
           start: DateTime(entry.end.year, entry.end.month, entry.end.day, 0, 0, 0),
           end: entry.end,
         ));
@@ -159,7 +182,7 @@ class TimeTrackingEntry {
     DateTime date = DateTime(month.year, month.month, 1);
     while (date.month == month.month && date.isBefore(now)) {
       days.add(date);
-      date = date.add(Duration(days: 1));
+      date = date.add(const Duration(days: 1));
     }
     days.sort((a, b) => b.compareTo(a));
     return days;
@@ -171,7 +194,7 @@ class TimeTrackingEntry {
     final now = DateTime.now();
     while (date.year == year && date.isBefore(now)) {
       days.add(date);
-      date = date.add(Duration(days: 1));
+      date = date.add(const Duration(days: 1));
     }
     days.sort((a, b) => b.compareTo(a));
     return days;

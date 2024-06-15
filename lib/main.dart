@@ -7,7 +7,7 @@ import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/UserSettings.dart';
 import 'package:timing/src/model/database/database.dart';
 import 'package:timing/src/view/Intoduction.dart';
-import 'package:timing/src/view/home.dart';
+import 'package:timing/src/view/pages/home/home.dart';
 // import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -43,18 +43,34 @@ class App extends StatelessWidget {
         ],
         debugShowCheckedModeBanner: false,
         title: 'Time Tracking App',
-        localizationsDelegates: [
+        localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        theme: CupertinoThemeData(brightness: Brightness.light, textTheme: CupertinoTextThemeData(textStyle: CupertinoTextThemeData().textStyle.copyWith(fontSize: 15, color: CupertinoColors.black))),
+        theme: getLightTheme(),
         navigatorKey: navigatorKey,
         home: TimeTrackingApp(),
       );
     } on Exception catch (_) {
       throw UnimplementedError();
     }
+  }
+
+  CupertinoThemeData getLightTheme() {
+    return CupertinoThemeData(
+      brightness: Brightness.light,
+      textTheme: getTextTheme(),
+      primaryColor: const Color.fromARGB(255, 61, 140, 90),
+      primaryContrastingColor: CupertinoColors.white,
+      scaffoldBackgroundColor: const Color.fromARGB(255, 193, 215, 199),
+      barBackgroundColor: CupertinoColors.systemBlue,
+      applyThemeToAll: true,
+    );
+  }
+
+  CupertinoTextThemeData getTextTheme() {
+    return CupertinoTextThemeData(textStyle: CupertinoTextThemeData().textStyle.copyWith(fontSize: 16, color: CupertinoColors.black));
   }
 }
 

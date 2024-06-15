@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/UserSettings.dart';
-import 'package:timing/src/view/home.dart';
+import 'package:timing/src/view/pages/home/home.dart';
 
 class IntroductionPage extends StatefulWidget {
   @override
