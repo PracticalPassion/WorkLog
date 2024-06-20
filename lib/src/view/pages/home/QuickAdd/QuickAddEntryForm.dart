@@ -10,27 +10,22 @@ class QuickAddEntryForm extends StatefulWidget {
 
 class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
   DateTime? _selectedDateTime;
+  String? _errorText;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final timeTrackingController = Provider.of<TimeTrackingController>(context, listen: false);
-      setState(() {
-        _selectedDateTime = timeTrackingController.lastStartTime ?? DateTime.now();
-      });
-    });
+    getDateWithAdd();
   }
 
-  DateTime getDateWithAdd() {
+  getDateWithAdd() {
     final timeTrackingController = Provider.of<TimeTrackingController>(context, listen: false);
     if (timeTrackingController.lastStartTime == null) {
       _selectedDateTime = DateTimePicker5.rountTime(DateTime.now());
-      return DateTime.now();
+    } else {
+      DateTime time = timeTrackingController.lastStartTime!;
+      _selectedDateTime = DateTimePicker5.rountTime(time.add(const Duration(minutes: 15)));
     }
-    DateTime time = timeTrackingController.lastStartTime!;
-    _selectedDateTime = DateTimePicker5.rountTime(time.add(Duration(minutes: 15)));
-    return time.add(Duration(minutes: 15));
   }
 
   @override
@@ -56,7 +51,7 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
             SizedBox(
               height: 250,
               child: DateTimePicker5(
-                initialDateTime: getDateWithAdd(),
+                initialDateTime: _selectedDateTime ?? DateTime.now(),
                 onDateTimeChanged: (DateTime newDateTime) {
                   setState(() {
                     _selectedDateTime = newDateTime;
@@ -65,6 +60,14 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
               ),
             ),
             const SizedBox(height: 10),
+            if (_errorText != null)
+              Container(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Text(
+                  _errorText!,
+                  style: const TextStyle(color: CupertinoColors.systemRed),
+                ),
+              ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -80,6 +83,13 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   onPressed: () {
                     if (timeTrackingController.lastStartTime == null) {
+                      if (timeTrackingController.startTimeOverlaps(_selectedDateTime!, null)) {
+                        setState(() {
+                          _errorText = 'Entry overlaps with another entry';
+                        });
+                        return;
+                      }
+
                       timeTrackingController.saveCurrentStartTime(_selectedDateTime!);
                     } else {
                       timeTrackingController.stopCurrentEntry(_selectedDateTime!);

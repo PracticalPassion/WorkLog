@@ -44,3 +44,61 @@ class DateTimePicker5 extends StatelessWidget {
     );
   }
 }
+
+class DatePicker extends StatelessWidget {
+  final DateTime initialDateTime;
+  final ValueChanged<DateTime> onDateTimeChanged;
+
+  DatePicker({
+    super.key,
+    required this.initialDateTime,
+    required this.onDateTimeChanged,
+  });
+
+  static DateTime toDate(DateTime dateTime) {
+    return DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoDatePicker(
+      mode: CupertinoDatePickerMode.date,
+      showDayOfWeek: true,
+      initialDateTime: toDate(initialDateTime),
+      maximumDate: DateTime.now().add(const Duration(days: 1)),
+      onDateTimeChanged: (DateTime newDateTime) {
+        DateTime roundedDateTime = DateTime(
+          newDateTime.year,
+          newDateTime.month,
+          newDateTime.day,
+        );
+        onDateTimeChanged(roundedDateTime);
+      },
+    );
+  }
+}
+
+class DurationPicker extends StatelessWidget {
+  final Duration initialDuration;
+  final ValueChanged<Duration> onDurationChanged;
+
+  DurationPicker({
+    super.key,
+    required this.initialDuration,
+    required this.onDurationChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoTimerPicker(
+      mode: CupertinoTimerPickerMode.hm,
+      initialTimerDuration: initialDuration,
+      minuteInterval: 5,
+      onTimerDurationChanged: onDurationChanged,
+    );
+  }
+}

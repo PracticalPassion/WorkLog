@@ -33,7 +33,16 @@ class DatabaseHelper {
       CREATE TABLE time_entries (
         id INTEGER PRIMARY KEY,
         start TEXT,
-        end TEXT
+        end TEXT,
+        pause INTEGER DEFAULT 0
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE work_days (
+        date TEXT PRIMARY KEY,
+        type INTEGER,
+        minutes INTEGER
       )
     ''');
   }

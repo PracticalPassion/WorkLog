@@ -16,14 +16,42 @@ class BottomSheetEntryForm extends StatelessWidget {
       minChildSize: 0.5,
       maxChildSize: 0.9,
       builder: (_, controller) => Container(
-        decoration: const BoxDecoration(
-          color: CupertinoColors.systemGrey6,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(15),
+          decoration: const BoxDecoration(
+            color: CupertinoColors.systemGrey6,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(15),
+            ),
           ),
-        ),
-        child: child,
-      ),
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 5,
+                      width: 50,
+                      margin: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: CupertinoButton(
+                      child: const Icon(CupertinoIcons.xmark_circle_fill, color: CupertinoColors.systemGrey2),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              child
+            ],
+          )),
     );
   }
 }

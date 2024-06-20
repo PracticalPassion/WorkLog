@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:timing/src/model/Month.dart';
 import 'package:timing/src/model/TimeEntry.dart';
+import 'package:timing/src/model/WorkDay.dart';
 import 'package:timing/src/model/database/database.dart';
 
 class TimeTrackingController extends ChangeNotifier {
@@ -40,15 +40,24 @@ class TimeTrackingController extends ChangeNotifier {
     final db = await dbHelper.database;
 
     List<TimeEntry> timeEntries = await TimeEntry.getAll(db);
-    _entries = _mapTimeEntriesToTrackingEntries(timeEntries);
+    List<WorkDay> workDays = await WorkDay.getAll(db);
+
+    _entries = _mapTimeEntriesToTrackingEntries(timeEntries, workDays);
 
     totalOvertime = _calculateTotalOvertime(_entries);
     _updateMonthlyOvertime();
     notifyListeners();
   }
 
-  List<TimeTrackingEntry> _mapTimeEntriesToTrackingEntries(List<TimeEntry> timeEntries) {
+  List<TimeTrackingEntry> _mapTimeEntriesToTrackingEntries(List<TimeEntry> timeEntries, List<WorkDay> workDays) {
     Map<DateTime, List<TimeEntry>> groupedEntries = {};
+
+    for (var entry in workDays) {
+      DateTime date = DateTime(entry.date.year, entry.date.month, entry.date.day);
+      if (!groupedEntries.containsKey(date)) {
+        groupedEntries[date] = [];
+      }
+    }
 
     for (var entry in timeEntries) {
       DateTime date = DateTime(entry.start.year, entry.start.month, entry.start.day);
@@ -63,12 +72,16 @@ class TimeTrackingController extends ChangeNotifier {
       }
     }
 
-    return groupedEntries.entries.map((e) {
-      return TimeTrackingEntry(
-        date: e.key,
-        timeEntries: e.value,
-      );
+    List<TimeTrackingEntry> futureEntries = groupedEntries.entries.map((e) {
+      WorkDay? result = workDays.cast<WorkDay?>().firstWhere(
+            (wd) => wd?.date.day == e.key.day && wd?.date.month == e.key.month && wd?.date.year == e.key.year,
+            orElse: () => null,
+          );
+      return TimeTrackingEntry(date: e.key, timeEntries: e.value, expectedWorkHours: 7, workDay: result);
     }).toList();
+
+    // Warte auf die Erstellung aller TimeTrackingEntry-Objekte
+    return futureEntries;
   }
 
   void _splitOvernightEntry(TimeEntry entry, Map<DateTime, List<TimeEntry>> groupedEntries) {
@@ -99,10 +112,13 @@ class TimeTrackingController extends ChangeNotifier {
     }
   }
 
-  bool requestEntryOverlaps(TimeEntryTemplate other) {
+  bool startTimeOverlaps(DateTime start, TimeEntry? except) {
     for (var entry in _entries) {
       for (var timeEntry in entry.timeEntries) {
-        if (timeEntry.start.isBefore(other.end) && timeEntry.end.isAfter(other.start)) {
+        if (except != null && timeEntry.id == except.id) {
+          continue;
+        }
+        if (start.isBefore(timeEntry.end)) {
           return true;
         }
       }
@@ -110,10 +126,10 @@ class TimeTrackingController extends ChangeNotifier {
     return false;
   }
 
-  bool requestEntryOverlapsExcept(TimeEntryTemplate other, TimeEntry except) {
+  bool requestEntryOverlaps(TimeEntryTemplate other, TimeEntry? except) {
     for (var entry in _entries) {
       for (var timeEntry in entry.timeEntries) {
-        if (timeEntry.id == except.id) {
+        if (except != null && timeEntry.id == except.id) {
           continue;
         }
         if (timeEntry.start.isBefore(other.end) && timeEntry.end.isAfter(other.start)) {
@@ -145,10 +161,37 @@ class TimeTrackingController extends ChangeNotifier {
     await loadEntries();
   }
 
+  Future<TimeEntry> getEntry(int id) async {
+    final dbHelper = DatabaseHelper();
+    final db = await dbHelper.database;
+    return await TimeEntry.get(db, id);
+  }
+
   Future<void> deleteEntry(int id) async {
     final dbHelper = DatabaseHelper();
     final db = await dbHelper.database;
     await db.delete('time_entries', where: 'id = ?', whereArgs: [id]);
+    await loadEntries();
+  }
+
+  Future<void> saveWorkDay(WorkDay workDay) async {
+    final dbHelper = DatabaseHelper();
+    final db = await dbHelper.database;
+    await workDay.save(db);
+    await loadEntries();
+  }
+
+  Future<void> updateWorkDay(WorkDay workDay) async {
+    final dbHelper = DatabaseHelper();
+    final db = await dbHelper.database;
+    await workDay.update(db);
+    await loadEntries();
+  }
+
+  Future<void> deleteWorkDay(WorkDay workday) async {
+    final dbHelper = DatabaseHelper();
+    final db = await dbHelper.database;
+    await workday.delete(db);
     await loadEntries();
   }
 

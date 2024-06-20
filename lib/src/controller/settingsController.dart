@@ -8,22 +8,19 @@ class SettingsController extends ChangeNotifier {
 
   Future<void> loadUserSettings() async {
     _settings = await SettingsHelper.getUserSettings();
-    if (_settings == null) {
-      // Default settings if none are found
-      _settings = UserSettings(
-        dailyWorkingHours: {
-          'Monday': 8,
-          'Tuesday': 8,
-          'Wednesday': 8,
-          'Thursday': 8,
-          'Friday': 8,
-          'Saturday': 0,
-          'Sunday': 0,
-        },
-        breakDurationMinutes: 30,
-        breakAfterHours: 6,
-      );
-    }
+    _settings ??= UserSettings(
+      dailyWorkingHours: {
+        DateTime.monday: 8,
+        DateTime.tuesday: 8,
+        DateTime.wednesday: 8,
+        DateTime.thursday: 8,
+        DateTime.friday: 8,
+        DateTime.saturday: 0,
+        DateTime.sunday: 0,
+      },
+      breakDurationMinutes: 30,
+      breakAfterHours: 6,
+    );
     notifyListeners();
   }
 
@@ -31,5 +28,9 @@ class SettingsController extends ChangeNotifier {
     await SettingsHelper.saveUserSettings(settings);
     _settings = settings;
     notifyListeners();
+  }
+
+  double getExpectedWorkHours(DateTime date) {
+    return _settings?.dailyWorkingHours[date.weekday] ?? 0;
   }
 }

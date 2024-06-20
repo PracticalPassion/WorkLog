@@ -4,12 +4,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
 import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/model/UserSettings.dart';
 import 'package:timing/src/model/database/database.dart';
-import 'package:timing/src/view/Intoduction.dart';
+import 'package:timing/src/view/pages/Intoduction.dart';
 import 'package:timing/src/view/pages/home/home.dart';
-// import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
 import 'package:timing/src/controller/settingsController.dart';
@@ -17,31 +16,28 @@ class TimeEntriesListWidget extends StatelessWidget {
     final daysMonth = TimeTrackingEntry.getDaysInMonth(timeTrackingController.currentMonth);
 
     return Expanded(
-      child: timeTrackingController.entries.isEmpty
-          ? const Center(child: CupertinoActivityIndicator())
-          : CupertinoScrollbar(
-              child: ListView.builder(
-                itemCount: daysMonth.length,
-                itemBuilder: (context, index) {
-                  final day = daysMonth[index];
-                  final entry = timeTrackingController.entries.firstWhere(
-                    (entry) => TimeTrackingEntry.isSameDay(entry.date, day),
-                    orElse: () => TimeTrackingEntry(
-                      date: day,
-                      timeEntries: [],
-                      expectedWorkHours: 0,
-                      description: '',
-                    ),
-                  );
-                  final isZeroHourDay = settingsController.settings?.dailyWorkingHours[DateFormat('EEEE').format(day)] == 0;
-                  return EntryTile(
-                    entry: entry,
-                    dailyWorkHours: 0, // Assume 8 hours as daily work hours
-                    isZeroHourDay: isZeroHourDay,
-                  );
-                },
+      child: CupertinoScrollbar(
+        child: ListView.builder(
+          itemCount: daysMonth.length,
+          itemBuilder: (context, index) {
+            final day = daysMonth[index];
+            final entry = timeTrackingController.entries.firstWhere(
+              (entry) => TimeTrackingEntry.isSameDay(entry.date, day),
+              orElse: () => TimeTrackingEntry(
+                date: day,
+                timeEntries: [],
+                expectedWorkHours: 0,
+                description: '',
               ),
-            ),
+            );
+            // todo: database version for expected work hours
+            entry.expectedWorkHours = settingsController.getExpectedWorkHours(day);
+            return EntryTile(
+              entry: entry,
+            );
+          },
+        ),
+      ),
       // ),
     );
   }

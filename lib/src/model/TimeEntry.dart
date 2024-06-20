@@ -1,17 +1,17 @@
-import 'dart:ffi';
-
-import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:timing/src/model/Month.dart';
+import 'package:timing/src/model/WorkDay.dart';
 import 'package:timing/src/model/database/database.dart';
 
 class TimeEntryTemplate {
   DateTime start;
   DateTime end;
+  Duration? pause;
 
   TimeEntryTemplate({
     required this.start,
     required this.end,
+    this.pause,
   });
 
   Future<int> save(Database db) async {
@@ -22,6 +22,7 @@ class TimeEntryTemplate {
     return {
       'start': start.toIso8601String(),
       'end': end.toIso8601String(),
+      'pause': pause?.inMinutes ?? 0,
     };
   }
 }
@@ -30,20 +31,23 @@ class TimeEntry {
   int id;
   DateTime start;
   DateTime end;
+  Duration? pause;
 
   TimeEntry({
     required this.id,
     required this.start,
     required this.end,
+    this.pause,
   });
 
-  Duration get duration => end.difference(start);
+  Duration get duration => end.difference(start) - (pause ?? Duration.zero);
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'start': start.toIso8601String(),
       'end': end.toIso8601String(),
+      'pause': pause?.inMinutes ?? 0,
     };
   }
 
@@ -52,6 +56,7 @@ class TimeEntry {
       id: map['id'],
       start: DateTime.parse(map['start']),
       end: DateTime.parse(map['end']),
+      pause: Duration(minutes: map['pause']),
     );
   }
 
@@ -74,26 +79,30 @@ class TimeEntry {
     await db.delete('time_entries', where: 'id = ?', whereArgs: [id]);
   }
 
+  static Future<TimeEntry> get(Database db, int id) async {
+    List<Map<String, dynamic>> maps = await db.query('time_entries', where: 'id = ?', whereArgs: [id]);
+    return TimeEntry.fromMap(maps.first);
+  }
+
   static Future<List<TimeEntry>> getAll(Database db) async {
     List<Map<String, dynamic>> maps = await db.query('time_entries');
     return maps.map((map) => TimeEntry.fromMap(map)).toList();
   }
 }
 
+// todo: dont add Time When on Vacation
+// todo: when Overtime, display Overtime duration in ListEntry
+
 class TimeTrackingEntry {
   DateTime date;
   double expectedWorkHours;
   String description;
+  WorkDay? workDay;
   List<TimeEntry> timeEntries;
 
-  TimeTrackingEntry({
-    required this.date,
-    this.expectedWorkHours = 8.0,
-    this.description = '',
-    required this.timeEntries,
-  });
+  TimeTrackingEntry({required this.date, this.description = '', required this.timeEntries, required this.expectedWorkHours, this.workDay});
 
-  Duration get netDuration => timeEntries.fold(Duration.zero, (total, entry) => total + entry.duration);
+  Duration get netDuration => timeEntries.fold(Duration.zero, (total, entry) => total + entry.duration) - (Duration(minutes: workDay != null ? workDay!.getMinutes() : 0));
 
   // 3. Über Nacht Einträge aufteilen
   void splitOvernightEntries() {

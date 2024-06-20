@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
+import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/TimeEntry.dart';
+import 'package:timing/src/model/database/database.dart';
 import 'package:timing/src/view/Helper/Utils.dart';
 import 'package:timing/src/view/macros/BorderWithText.dart';
 import 'package:timing/src/view/macros/DateTimePicker.dart';
@@ -19,24 +21,24 @@ class EntryFormPage extends StatefulWidget {
 }
 
 class _EntryFormPageState extends State<EntryFormPage> {
-  final _formKey = GlobalKey<FormState>();
   late DateTime _startTime;
   late DateTime _endTime;
+  Duration dayDuration = const Duration(minutes: 0);
   final TextEditingController _controller = TextEditingController();
 
-  String _description = '';
+  TimeEntry? localEntry;
 
   @override
   void initState() {
     super.initState();
-    if (widget.entry != null) {
-      _startTime = widget.entry!.start;
-      _endTime = widget.entry!.end;
-    } else {
-      DateTime now = DateTime.now();
-      _startTime = DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
-      _endTime = DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
-    }
+
+    DateTime now = DateTime.now();
+    _startTime = DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
+    _endTime = DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
+
+    loadDataFrom();
+
+    // loadDataFrom();
 
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
@@ -45,6 +47,22 @@ class _EntryFormPageState extends State<EntryFormPage> {
         _removeOverlay();
       }
     });
+    if (widget.entry != null && widget.entry!.pause != null) {
+      _controller.text = (widget.entry!.pause!.inMinutes / 60).toString();
+    }
+  }
+
+  Future<void> loadDataFrom() async {
+    if (widget.entry != null) {
+      var db = await DatabaseHelper().database;
+      var entr = await TimeEntry.get(db, widget.entry!.id);
+      setState(() {
+        _startTime = entr.start;
+        _endTime = entr.end;
+
+        localEntry = TimeEntry(id: entr.id, start: entr.start, end: entr.end, pause: entr.pause);
+      });
+    }
   }
 
   String? _errorText;
@@ -63,7 +81,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
 
   void _showOverlay() {
     _overlayEntry = _createOverlayEntry();
-    Overlay.of(context)!.insert(_overlayEntry!);
+    Overlay.of(context).insert(_overlayEntry!);
   }
 
   void _removeOverlay() {
@@ -104,6 +122,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
   @override
   Widget build(BuildContext context) {
     final timeTrackingController = Provider.of<TimeTrackingController>(context);
+    final settingsController = Provider.of<SettingsController>(context);
 
     return Container(
       decoration: const BoxDecoration(
@@ -114,33 +133,6 @@ class _EntryFormPageState extends State<EntryFormPage> {
       ),
       child: Column(
         children: [
-          Stack(
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  height: 5,
-                  width: 50,
-                  margin: const EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: CupertinoColors.systemGrey,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  child: CupertinoButton(
-                    child: const Icon(CupertinoIcons.xmark_circle_fill, color: CupertinoColors.systemGrey2),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
           Text(widget.entry != null ? "Change Entry" : "New Entry", style: const CupertinoTextThemeData().navTitleTextStyle),
           const Divider(
             height: 20,
@@ -171,12 +163,13 @@ class _EntryFormPageState extends State<EntryFormPage> {
                           onPressed: () => showFilterWidget(context, _startTime, (newDura) {
                                 setState(() {
                                   _startTime = newDura;
+                                  dayDuration = _endTime.difference(_startTime);
                                 });
                               })),
                     ),
                   ],
                 ),
-                Divider(
+                const Divider(
                   color: CupertinoColors.systemGrey5,
                 ),
                 Row(
@@ -193,12 +186,13 @@ class _EntryFormPageState extends State<EntryFormPage> {
                           onPressed: () => showFilterWidget(context, _endTime, (newDura) {
                                 setState(() {
                                   _endTime = newDura;
+                                  dayDuration = _endTime.difference(_startTime);
                                 });
                               })),
                     ),
                   ],
                 ),
-                Divider(
+                const Divider(
                   color: CupertinoColors.systemGrey5,
                 ),
                 Row(
@@ -213,82 +207,106 @@ class _EntryFormPageState extends State<EntryFormPage> {
                         child: SizedBox(
                             width: 50,
                             child: CupertinoTextField(
-                              placeholder: "0", // todo: set from seetings
+                              placeholder: dayDuration.inHours > settingsController.settings!.breakAfterHours ? (settingsController.settings!.breakDurationMinutes / 60).toString() : "0",
                               controller: _controller,
                               focusNode: _focusNode,
-                              keyboardType: TextInputType.numberWithOptions(decimal: true),
-                              onChanged: (value) {
-                                // _description = value;
-                              },
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (value) {},
                             )))
                   ],
                 ),
               ],
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 5,
           ),
           Text(
             _errorText ?? "",
             style: TextStyle(color: CupertinoColors.destructiveRed, fontSize: 13),
           ),
-          Spacer(),
+          // const Spacer(),
           Container(
             margin: const EdgeInsets.only(bottom: 90),
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: CupertinoButton.filled(
-                child: const Text("Save"),
-                onPressed: () {
-                  // todo: end cannot be before start
-                  if (_endTime.isBefore(_startTime)) {
-                    setState(() {
-                      _errorText = 'End Date cannot be before Start Date';
-                    });
-                    return;
-                  }
+              child: Column(
+                // mainAxisAlignment: widget.entry != null ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
+                children: [
+                  // maybe delete button
 
-                  TimeEntryTemplate timeEntry = TimeEntryTemplate(
-                    // rond to minutes
-                    start: DateTime(_startTime.year, _startTime.month, _startTime.day, _startTime.hour, _startTime.minute),
-                    end: DateTime(_endTime.year, _endTime.month, _endTime.day, _endTime.hour, _endTime.minute),
-                  );
-                  // check if overlaps
+                  CupertinoButton.filled(
+                    child: const Text("Save"),
+                    onPressed: () {
+                      // todo: end cannot be before start
+                      if (_endTime.isBefore(_startTime)) {
+                        setState(() {
+                          _errorText = 'End Date cannot be before Start Date';
+                        });
+                        return;
+                      }
+                      TimeEntryTemplate timeEntry = TimeEntryTemplate(
+                          // rond to minutes
+                          start: DateTime(_startTime.year, _startTime.month, _startTime.day, _startTime.hour, _startTime.minute),
+                          end: DateTime(_endTime.year, _endTime.month, _endTime.day, _endTime.hour, _endTime.minute),
+                          pause: Duration(
+                              minutes: _controller.text.isEmpty
+                                  ? dayDuration.inHours > settingsController.settings!.breakAfterHours
+                                      ? settingsController.settings!.breakDurationMinutes
+                                      : 0
+                                  : (double.parse(_controller.text) * 60).toInt()));
+                      // check if overlaps
 
-                  // minimum 15 minutes
-                  if (timeEntry.end.difference(timeEntry.start).inMinutes < 15) {
-                    setState(() {
-                      _errorText = 'Minimum duration is 15 minutes';
-                    });
-                    return;
-                  }
+                      // minimum 15 minutes
+                      if (timeEntry.end.difference(timeEntry.start).inMinutes < 15) {
+                        setState(() {
+                          _errorText = 'Minimum duration is 15 minutes';
+                        });
+                        return;
+                      }
 
-                  if (widget.entry != null) {
-                    if (timeTrackingController.requestEntryOverlapsExcept(timeEntry, widget.entry!)) {
-                      setState(() {
-                        _errorText = 'Entry overlaps with another entry';
-                      });
-                      return;
-                    }
+                      if (localEntry != null) {
+                        if (timeTrackingController.requestEntryOverlaps(timeEntry, localEntry!)) {
+                          setState(() {
+                            _errorText = 'Entry overlaps with another entry';
+                          });
+                          return;
+                        }
 
-                    widget.entry!.start = timeEntry.start;
-                    widget.entry!.end = timeEntry.end;
+                        localEntry!.start = timeEntry.start;
+                        localEntry!.end = timeEntry.end;
+                        localEntry!.pause = timeEntry.pause;
 
-                    timeTrackingController.updateEntry(widget.entry!);
-                  } else {
-                    if (timeTrackingController.requestEntryOverlaps(timeEntry)) {
-                      setState(() {
-                        _errorText = 'Entry overlaps with another entry';
-                      });
-                      return;
-                    }
+                        timeTrackingController.updateEntry(localEntry!);
+                      } else {
+                        if (timeTrackingController.requestEntryOverlaps(timeEntry, null)) {
+                          setState(() {
+                            _errorText = 'Entry overlaps with another entry';
+                          });
+                          return;
+                        }
 
-                    timeTrackingController.saveEntryTemplate(timeEntry);
-                  }
+                        timeTrackingController.saveEntryTemplate(timeEntry);
+                      }
 
-                  Navigator.pop(context);
-                },
+                      Navigator.pop(context);
+                    },
+                  ),
+
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  widget.entry != null
+                      ? CupertinoButton(
+                          child: const Text("Delete", style: TextStyle(color: CupertinoColors.destructiveRed)),
+                          onPressed: () {
+                            timeTrackingController.deleteEntry(widget.entry!.id);
+                            Navigator.pop(context);
+                          },
+                        )
+                      : const SizedBox(),
+                ],
               ),
             ),
           ),
@@ -296,21 +314,6 @@ class _EntryFormPageState extends State<EntryFormPage> {
       ),
     );
   }
-
-  // Widget bottomSheet(context) {
-  //   return DraggableScrollableSheet(
-  //       initialChildSize: 0.4,
-  //       minChildSize: 0.3,
-  //       maxChildSize: 0.5,
-  //       builder: (_, controller) => Container(
-  //           decoration: const BoxDecoration(
-  //             color: CupertinoColors.systemGrey6,
-  //             borderRadius: BorderRadius.all(
-  //               Radius.circular(15),
-  //             ),
-  //           ),
-  //           child: showFilterWidget()));
-  // }
 
   void showFilterWidget(BuildContext context, DateTime time, Function(DateTime) onPressed) {
     Utils.showSheet(
@@ -325,16 +328,6 @@ class _EntryFormPageState extends State<EntryFormPage> {
             });
           },
         ),
-        // CupertinoDatePicker(
-        //   mode: CupertinoDatePickerMode.dateAndTime,
-        //   // max to now plus 1 day
-        //   maximumDate: DateTime.now().add(const Duration(days: 1)),
-        //   initialDateTime: time,
-        //   use24hFormat: true,
-        //   onDateTimeChanged: (val) {
-        //     time = val;
-        //   },
-        // ),
       ),
       onClicked: () {
         onPressed(time);

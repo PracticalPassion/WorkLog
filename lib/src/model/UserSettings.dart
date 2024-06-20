@@ -1,9 +1,8 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSettings {
-  Map<String, int> dailyWorkingHours;
+  Map<int, double> dailyWorkingHours;
   int breakDurationMinutes;
   int breakAfterHours;
 
@@ -15,7 +14,7 @@ class UserSettings {
 
   Map<String, dynamic> toMap() {
     return {
-      'dailyWorkingHours': dailyWorkingHours,
+      'dailyWorkingHours': dailyWorkingHours.map((key, value) => MapEntry(key.toString(), value)),
       'breakDurationMinutes': breakDurationMinutes,
       'breakAfterHours': breakAfterHours,
     };
@@ -23,7 +22,7 @@ class UserSettings {
 
   factory UserSettings.fromMap(Map<String, dynamic> map) {
     return UserSettings(
-      dailyWorkingHours: Map<String, int>.from(map['dailyWorkingHours']),
+      dailyWorkingHours: Map<int, double>.from(map['dailyWorkingHours'].map((key, value) => MapEntry(int.parse(key), value))),
       breakDurationMinutes: map['breakDurationMinutes'],
       breakAfterHours: map['breakAfterHours'],
     );
@@ -44,5 +43,12 @@ class SettingsHelper {
     if (settingsString == null) return null;
     final settingsMap = jsonDecode(settingsString);
     return UserSettings.fromMap(settingsMap);
+  }
+
+  static Future<double> getWorkingHours(int weekday) async {
+    UserSettings? settings = await getUserSettings();
+
+    if (settings == null) return 0;
+    return settings.dailyWorkingHours[weekday] ?? 0;
   }
 }

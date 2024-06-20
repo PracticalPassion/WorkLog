@@ -2,14 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
+import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/TimeEntry.dart';
-import 'package:timing/src/view/pages/FormPage.dart';
+import 'package:timing/src/view/macros/BottomSheetTemplate.dart';
+import 'package:timing/src/view/pages/home/Add/FormPage.dart';
 
 class EntryTile extends StatefulWidget {
   final TimeTrackingEntry entry;
-  final int dailyWorkHours;
-  final bool isZeroHourDay;
-  EntryTile({required this.entry, required this.dailyWorkHours, this.isZeroHourDay = false});
+  EntryTile({required this.entry});
 
   @override
   State<EntryTile> createState() => _EntryTileState();
@@ -18,6 +18,8 @@ class EntryTile extends StatefulWidget {
 class _EntryTileState extends State<EntryTile> {
   @override
   Widget build(BuildContext context) {
+    final settingsController = Provider.of<SettingsController>(context);
+    final timeTrackingController = Provider.of<TimeTrackingController>(context);
     final workDuration = widget.entry.netDuration;
     final workHours = workDuration.inHours;
     final workMinutes = workDuration.inMinutes % 60;
@@ -42,7 +44,7 @@ class _EntryTileState extends State<EntryTile> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Left section
-            SizedBox(
+            Container(
               width: 55,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -51,59 +53,77 @@ class _EntryTileState extends State<EntryTile> {
                   Text(formattedWeekDay,
                       style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
                             fontSize: 13,
-                            color: widget.isZeroHourDay ? CupertinoColors.activeBlue : CupertinoTheme.of(context).primaryColor,
+                            color: settingsController.settings!.dailyWorkingHours[widget.entry.date.weekday]! > 0 ? CupertinoColors.activeBlue : CupertinoTheme.of(context).primaryColor,
                             fontWeight: FontWeight.bold,
                           )),
                   Text(formattedDate, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontSize: 16)),
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 20),
             // Middle section
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: widget.entry.timeEntries.map((timeEntry) {
-                      final formattedStartTime = _formatTime(timeEntry.start);
-                      final formattedEndTime = _formatTime(timeEntry.end);
-                      return GestureDetector(
-                        onTap: () => showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => bottomSheet(timeEntry)),
-                        child: Dismissible(
-                          dismissThresholds: const {DismissDirection.endToStart: 0.6},
-                          key: ValueKey(timeEntry.id),
-                          background: Container(
-                              padding: const EdgeInsets.all(10),
-                              color: CupertinoColors.systemRed,
-                              child: Align(alignment: Alignment.centerRight, child: Text("Delete", style: const CupertinoTextThemeData().textStyle.copyWith(color: CupertinoColors.white)))),
-                          direction: DismissDirection.endToStart,
-                          onDismissed: (direction) {
-                            if (direction == DismissDirection.endToStart) {
-                              Provider.of<TimeTrackingController>(context, listen: false).deleteEntry(timeEntry.id);
-                            }
-                          },
-                          child: CupertinoListTile(
-                            title: Text(
+              child: Container(
+                padding: const EdgeInsets.only(right: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // minutes of woekday
+                    widget.entry.workDay == null ? const SizedBox() : widget.entry.workDay!.getWidget(context),
+                    Column(
+                      // crossAxisAlignment: CrossAxisAlignment.start,
+                      children: widget.entry.timeEntries.map((timeEntry) {
+                        final formattedStartTime = _formatTime(timeEntry.start);
+                        final formattedEndTime = _formatTime(timeEntry.end);
+                        return GestureDetector(
+                          onTap: () => showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetEntryForm(child: EntryFormPage(entry: timeEntry))),
+                          // popup to delete or edit
+                          onLongPress: () => showCupertinoDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CupertinoAlertDialog(
+                                title: const Text('Delete Entry'),
+                                content: const Text('Do you really want to delete this entry?'),
+                                actions: <Widget>[
+                                  CupertinoDialogAction(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  CupertinoDialogAction(
+                                    isDestructiveAction: true,
+                                    child: const Text('Delete'),
+                                    onPressed: () {
+                                      timeTrackingController.deleteEntry(timeEntry.id);
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+                            child: Text(
                               '$formattedStartTime - $formattedEndTime',
-                              style: CupertinoTheme.of(context).textTheme.textStyle,
+                              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  // const SizedBox(height: 8),
-                  // Text(widget.entry.description, style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle),
-                ],
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
             ),
             // Right section
             Container(
-              width: 55,
+              width: 70,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(workHours == 0 && workMinutes == 0 ? "" : '$workHours:${workMinutes.toString().padLeft(2, '0')} h', style: CupertinoTheme.of(context).textTheme.textStyle),
                   Text(
@@ -122,6 +142,28 @@ class _EntryTileState extends State<EntryTile> {
     );
   }
 
+  // Widget contextMenue(BuildContext context) {
+  //   return CupertinoContextMenu(
+  //     actions: <Widget>[
+  //       CupertinoContextMenuAction(
+  //         child: const Text('Edit'),
+  //         onPressed: () {
+  //           Navigator.of(context).pop();
+  //         },
+  //       ),
+  //       CupertinoContextMenuAction(
+  //         isDestructiveAction: true,
+  //         child: const Text('Delete'),
+  //         onPressed: () {
+  //           Navigator.of(context).pop();
+  //         },
+  //       ),
+  //     ],
+  //     enableHapticFeedback: true,
+  //     child:
+  //   );
+  // }
+
   String _formatTime(DateTime time) {
     return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
@@ -133,17 +175,4 @@ class _EntryTileState extends State<EntryTile> {
     DateFormat dateFormat = DateFormat.E(locale.toString());
     return dateFormat.format(date);
   }
-
-  Widget bottomSheet(timeEntry) => DraggableScrollableSheet(
-      initialChildSize: 0.9,
-      minChildSize: 0.5,
-      maxChildSize: 0.9,
-      builder: (_, controller) => Container(
-          decoration: const BoxDecoration(
-            color: CupertinoColors.systemGrey6,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(15),
-            ),
-          ),
-          child: EntryFormPage(entry: timeEntry)));
 }

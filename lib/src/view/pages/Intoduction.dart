@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/UserSettings.dart';
 import 'package:timing/src/view/pages/home/home.dart';
+import 'package:intl/intl.dart';
 
 class IntroductionPage extends StatefulWidget {
   @override
@@ -10,17 +11,22 @@ class IntroductionPage extends StatefulWidget {
 }
 
 class _IntroductionPageState extends State<IntroductionPage> {
-  final Map<String, int> dailyWorkingHours = {
-    'Monday': 8,
-    'Tuesday': 8,
-    'Wednesday': 8,
-    'Thursday': 8,
-    'Friday': 8,
-    'Saturday': 0,
-    'Sunday': 0,
+  final Map<int, double> dailyWorkingHours = {
+    DateTime.monday: 8,
+    DateTime.tuesday: 8,
+    DateTime.wednesday: 8,
+    DateTime.thursday: 8,
+    DateTime.friday: 8,
+    DateTime.saturday: 0,
+    DateTime.sunday: 0,
   };
+
   int breakDurationMinutes = 30;
   int breakAfterHours = 6;
+
+  String getDayName(int weekday) {
+    return DateFormat.EEEE().format(DateTime(2022, 1, weekday));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +41,12 @@ class _IntroductionPageState extends State<IntroductionPage> {
           children: [
             ...dailyWorkingHours.keys.map((day) {
               return CupertinoTextFormFieldRow(
-                prefix: Text(day),
+                prefix: Text(getDayName(day)),
                 initialValue: dailyWorkingHours[day].toString(),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
                   setState(() {
-                    dailyWorkingHours[day] = int.tryParse(value) ?? 0;
+                    dailyWorkingHours[day] = double.tryParse(value) ?? 0;
                   });
                 },
               );
@@ -74,6 +80,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                   breakAfterHours: breakAfterHours,
                 );
                 await settingsController.saveUserSettings(settings);
+
                 Navigator.pushReplacement(
                   context,
                   CupertinoPageRoute(builder: (context) => TimeTrackingListPage()),
