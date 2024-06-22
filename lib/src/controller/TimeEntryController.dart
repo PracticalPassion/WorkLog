@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/Month.dart';
 import 'package:timing/src/model/TimeEntry.dart';
+import 'package:timing/src/model/UserSettings.dart';
 import 'package:timing/src/model/WorkDay.dart';
 import 'package:timing/src/model/database/database.dart';
+import 'package:timing/src/view/Helper/Extentions/DateTimeExtention.dart';
 
 class TimeTrackingController extends ChangeNotifier {
   List<TimeTrackingEntry> _entries = [];
@@ -39,17 +42,19 @@ class TimeTrackingController extends ChangeNotifier {
     final dbHelper = DatabaseHelper();
     final db = await dbHelper.database;
 
+    UserSettings? _settings = await SettingsHelper.getUserSettings();
+
     List<TimeEntry> timeEntries = await TimeEntry.getAll(db);
     List<WorkDay> workDays = await WorkDay.getAll(db);
 
-    _entries = _mapTimeEntriesToTrackingEntries(timeEntries, workDays);
+    _entries = _mapTimeEntriesToTrackingEntries(timeEntries, workDays, _settings!);
 
     totalOvertime = _calculateTotalOvertime(_entries);
     _updateMonthlyOvertime();
     notifyListeners();
   }
 
-  List<TimeTrackingEntry> _mapTimeEntriesToTrackingEntries(List<TimeEntry> timeEntries, List<WorkDay> workDays) {
+  List<TimeTrackingEntry> _mapTimeEntriesToTrackingEntries(List<TimeEntry> timeEntries, List<WorkDay> workDays, UserSettings _settings) {
     Map<DateTime, List<TimeEntry>> groupedEntries = {};
 
     for (var entry in workDays) {
@@ -77,7 +82,7 @@ class TimeTrackingController extends ChangeNotifier {
             (wd) => wd?.date.day == e.key.day && wd?.date.month == e.key.month && wd?.date.year == e.key.year,
             orElse: () => null,
           );
-      return TimeTrackingEntry(date: e.key, timeEntries: e.value, expectedWorkHours: 7, workDay: result);
+      return TimeTrackingEntry(date: e.key, timeEntries: e.value, expectedWorkHours: _settings.getExpectedWorkHours(e.key), workDay: result);
     }).toList();
 
     // Warte auf die Erstellung aller TimeTrackingEntry-Objekte
@@ -126,6 +131,23 @@ class TimeTrackingController extends ChangeNotifier {
     return false;
   }
 
+  bool hasEntryOnDate(DateTime? date, TimeEntry? except) {
+    if (date == null) {
+      return false;
+    }
+    for (var entry in _entries) {
+      for (var timeEntry in entry.timeEntries) {
+        if (except != null && timeEntry.id == except.id) {
+          continue;
+        }
+        if (timeEntry.start.toDay() == date.toDay() || timeEntry.end.toDay() == date.toDay()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   bool requestEntryOverlaps(TimeEntryTemplate other, TimeEntry? except) {
     for (var entry in _entries) {
       for (var timeEntry in entry.timeEntries) {
@@ -167,10 +189,10 @@ class TimeTrackingController extends ChangeNotifier {
     return await TimeEntry.get(db, id);
   }
 
-  Future<void> deleteEntry(int id) async {
+  Future<void> deleteEntry(TimeEntry entry) async {
     final dbHelper = DatabaseHelper();
     final db = await dbHelper.database;
-    await db.delete('time_entries', where: 'id = ?', whereArgs: [id]);
+    await entry.delete(db);
     await loadEntries();
   }
 
@@ -205,39 +227,37 @@ class TimeTrackingController extends ChangeNotifier {
     double totalOvertime = 0.0;
     for (var entry in entries) {
       final workDuration = entry.netDuration;
-      final workHours = workDuration.inHours;
-      final workMinutes = workDuration.inMinutes % 60;
-      final difference = workHours + workMinutes / 60 - entry.expectedWorkHours;
-      totalOvertime += difference;
+      final duration = ((workDuration.inMinutes < 0 ? 0 : workDuration.inMinutes) - (entry.expectedWorkHours.inMinutes)) / 60;
+      totalOvertime += duration;
     }
     return totalOvertime;
   }
 
-  Future<void> createSampleEntries() async {
+  Future<void> createSampleEntries(SettingsController settingController) async {
     List<TimeEntryTemplate> sampleEntries = [
       TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 10)),
-        end: DateTime.now().subtract(const Duration(days: 1, hours: 8)),
+        start: DateTime.now().subtract(const Duration(days: 1, hours: 10)).roundToMinute(),
+        end: DateTime.now().subtract(const Duration(days: 1, hours: 8)).roundToMinute(),
       ),
       TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 6)),
-        end: DateTime.now().subtract(const Duration(days: 1, hours: 4)),
+        start: DateTime.now().subtract(const Duration(days: 1, hours: 6)).roundToMinute(),
+        end: DateTime.now().subtract(const Duration(days: 1, hours: 4)).roundToMinute(),
       ),
       TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 2)),
-        end: DateTime.now().subtract(const Duration(days: 1, hours: 1)),
+        start: DateTime.now().subtract(const Duration(days: 1, hours: 2)).roundToMinute(),
+        end: DateTime.now().subtract(const Duration(days: 1, hours: 1)).roundToMinute(),
       ),
       TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 2)),
-        end: DateTime.now().subtract(const Duration(days: 0, hours: 0)),
+        start: DateTime.now().subtract(const Duration(days: 1, hours: 2)).roundToMinute(),
+        end: DateTime.now().subtract(const Duration(days: 0, hours: 0)).roundToMinute(),
       ),
       TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 2, hours: 9)),
-        end: DateTime.now().subtract(const Duration(days: 2, hours: 7)),
+        start: DateTime.now().subtract(const Duration(days: 2, hours: 9)).roundToMinute(),
+        end: DateTime.now().subtract(const Duration(days: 2, hours: 7)).roundToMinute(),
       ),
       TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 2, hours: 5)),
-        end: DateTime.now().subtract(const Duration(days: 2, hours: 3)),
+        start: DateTime.now().subtract(const Duration(days: 2, hours: 5)).roundToMinute(),
+        end: DateTime.now().subtract(const Duration(days: 2, hours: 3)).roundToMinute(),
       ),
     ];
 
@@ -276,10 +296,32 @@ class TimeTrackingController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void stopCurrentEntry(DateTime time) {
+  String? stopCurrentEntry(DateTime time, SettingsController settingsController) {
     assert(_lastStartTime != null);
+    if (_lastStartTime == null) {
+      return 'No start time found';
+    }
+
+    if (time.isBefore(_lastStartTime!)) {
+      return 'End time is before start time';
+    }
+
     final entry = TimeEntryTemplate(start: _lastStartTime!, end: time);
     saveEntryTemplate(entry);
     removeCurrentStartTime();
+    return null;
+  }
+
+  bool validateOvertime(TimeEntryTemplate timeEntry) {
+    for (var entry in _entries) {
+      if (entry.workDay != null) {
+        if (entry.workDay!.minutes < 0) {
+          if (timeEntry.start.toDay() == entry.date.toDay() || timeEntry.end.toDay() == entry.date.toDay()) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   }
 }

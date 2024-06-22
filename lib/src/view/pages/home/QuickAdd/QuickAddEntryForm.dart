@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
-import 'package:timing/src/view/macros/DateTimePicker.dart';
+import 'package:timing/src/controller/settingsController.dart';
+import 'package:timing/src/model/TimeEntry.dart';
+import 'package:timing/src/view/macros/ContextManager.dart';
+import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
 
 class QuickAddEntryForm extends StatefulWidget {
   @override
@@ -18,7 +21,7 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
     getDateWithAdd();
   }
 
-  getDateWithAdd() {
+  getDateWithAdd() async {
     final timeTrackingController = Provider.of<TimeTrackingController>(context, listen: false);
     if (timeTrackingController.lastStartTime == null) {
       _selectedDateTime = DateTimePicker5.rountTime(DateTime.now());
@@ -31,6 +34,7 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
   @override
   Widget build(BuildContext context) {
     final timeTrackingController = Provider.of<TimeTrackingController>(context);
+    final settingsController = Provider.of<SettingsController>(context);
 
     return Container(
       margin: const EdgeInsets.all(4),
@@ -81,18 +85,29 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                 ),
                 CupertinoButton.filled(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  onPressed: () {
+                  onPressed: () async {
+                    if (!timeTrackingController.validateOvertime(TimeEntryTemplate(start: _selectedDateTime!, end: _selectedDateTime!))) {
+                      ContextManager.showInfoPopup(context,
+                          "Cannot reduce to less than daily working hours. Add a Time Entry with your working time. E.g. if you work 8 hours a day, add a Time Entry with 4 hours. The remaining 4 hours will be considered as overtime.");
+                      return;
+                    }
                     if (timeTrackingController.lastStartTime == null) {
                       if (timeTrackingController.startTimeOverlaps(_selectedDateTime!, null)) {
                         setState(() {
-                          _errorText = 'Entry overlaps with another entry';
+                          _errorText = 'Quick add is only possible if there are no other entries after the selected time.';
                         });
                         return;
                       }
 
                       timeTrackingController.saveCurrentStartTime(_selectedDateTime!);
                     } else {
-                      timeTrackingController.stopCurrentEntry(_selectedDateTime!);
+                      var result = timeTrackingController.stopCurrentEntry(_selectedDateTime!, settingsController);
+                      if (result != null) {
+                        setState(() {
+                          _errorText = result;
+                        });
+                        return;
+                      }
                     }
                     Navigator.of(context).pop();
                   },

@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 
 class BorderedWithText extends StatelessWidget {
   final Function onPressed;
-  final String text;
+  final Widget textWidget;
 
   BorderedWithText({
-    required this.text,
+    required this.textWidget,
     required this.onPressed,
   });
 
@@ -20,7 +20,7 @@ class BorderedWithText extends StatelessWidget {
             // border: Border.all(color: CupertinoColors.black),
             borderRadius: const BorderRadius.all(Radius.circular(5.0)),
           ),
-          child: Center(child: Text(text))),
+          child: Center(child: textWidget)),
       onTap: () => onPressed(),
     );
   }

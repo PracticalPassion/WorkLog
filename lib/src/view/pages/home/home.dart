@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
+import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/Month.dart';
 import 'package:timing/src/model/TimeEntry.dart';
 import 'package:timing/src/model/WorkDay.dart';
@@ -14,7 +15,6 @@ import 'package:timing/src/view/pages/home/MonthSelection.dart';
 import 'package:timing/src/view/pages/home/ListEntry/TimeEntriesList.dart';
 import 'package:timing/src/view/pages/home/QuickAdd/QuickAddEntryColored.dart';
 import 'package:timing/src/view/pages/home/TotalOvertime.dart';
-import 'package:timing/src/view/pages/home/Add/FormPage.dart';
 
 class TimeTrackingListPage extends StatefulWidget {
   @override
@@ -63,20 +63,26 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
 
   Future<void> _initializeData() async {
     final timeTrackingController = Provider.of<TimeTrackingController>(context, listen: false);
+    final settingController = Provider.of<SettingsController>(context, listen: false);
     await timeTrackingController.loadEntries();
 
-    if (timeTrackingController.entries.isEmpty) {
-      var db = await DatabaseHelper().database;
+    // if (timeTrackingController.entries.isEmpty) {
+    //   var db = await DatabaseHelper().database;
 
-      await WorkDay(
-        date: DateTime.now(),
-        type: WorkDayType.workday,
-        minutes: 420,
-      ).save(db);
+    //   await WorkDay(
+    //     date: DateTime.now(),
+    //     type: WorkDayType.overtime,
+    //     minutes: 420,
+    //   ).save(db);
+    //   await WorkDay(
+    //     date: DateTime.now().subtract(Duration(days: 3)),
+    //     type: WorkDayType.overtime,
+    //     minutes: -480,
+    //   ).save(db);
 
-      await timeTrackingController.createSampleEntries();
-      await timeTrackingController.loadEntries();
-    }
+    //   await timeTrackingController.createSampleEntries(settingController);
+    //   await timeTrackingController.loadEntries();
+    // }
   }
 
   @override

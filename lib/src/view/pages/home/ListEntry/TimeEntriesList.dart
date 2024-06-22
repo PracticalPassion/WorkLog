@@ -26,7 +26,7 @@ class TimeEntriesListWidget extends StatelessWidget {
               orElse: () => TimeTrackingEntry(
                 date: day,
                 timeEntries: [],
-                expectedWorkHours: 0,
+                expectedWorkHours: Duration.zero,
                 description: '',
               ),
             );

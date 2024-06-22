@@ -34,6 +34,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY,
         start TEXT,
         end TEXT,
+        expectedWorkHours DOUBLE,
         pause INTEGER DEFAULT 0
       )
     ''');

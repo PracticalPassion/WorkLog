@@ -7,20 +7,8 @@ class SettingsController extends ChangeNotifier {
   UserSettings? get settings => _settings;
 
   Future<void> loadUserSettings() async {
+    await deleteUserSettings();
     _settings = await SettingsHelper.getUserSettings();
-    _settings ??= UserSettings(
-      dailyWorkingHours: {
-        DateTime.monday: 8,
-        DateTime.tuesday: 8,
-        DateTime.wednesday: 8,
-        DateTime.thursday: 8,
-        DateTime.friday: 8,
-        DateTime.saturday: 0,
-        DateTime.sunday: 0,
-      },
-      breakDurationMinutes: 30,
-      breakAfterHours: 6,
-    );
     notifyListeners();
   }
 
@@ -30,7 +18,13 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  double getExpectedWorkHours(DateTime date) {
-    return _settings?.dailyWorkingHours[date.weekday] ?? 0;
+  Future<void> deleteUserSettings() async {
+    await SettingsHelper.deleteUserSettings();
+    _settings = null;
+    notifyListeners();
+  }
+
+  Duration getExpectedWorkHours(DateTime date) {
+    return _settings!.getExpectedWorkHours(date);
   }
 }

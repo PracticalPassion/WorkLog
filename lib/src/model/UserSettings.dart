@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSettings {
-  Map<int, double> dailyWorkingHours;
+  Map<int, Duration> dailyWorkingHours;
   int breakDurationMinutes;
-  int breakAfterHours;
+  Duration breakAfterHours;
 
   UserSettings({
     required this.dailyWorkingHours,
@@ -14,18 +14,22 @@ class UserSettings {
 
   Map<String, dynamic> toMap() {
     return {
-      'dailyWorkingHours': dailyWorkingHours.map((key, value) => MapEntry(key.toString(), value)),
+      'dailyWorkingHours': dailyWorkingHours.map((key, value) => MapEntry(key.toString(), value.inMinutes)),
       'breakDurationMinutes': breakDurationMinutes,
-      'breakAfterHours': breakAfterHours,
+      'breakAfterHours': breakAfterHours.inMinutes,
     };
   }
 
   factory UserSettings.fromMap(Map<String, dynamic> map) {
     return UserSettings(
-      dailyWorkingHours: Map<int, double>.from(map['dailyWorkingHours'].map((key, value) => MapEntry(int.parse(key), value))),
+      dailyWorkingHours: Map<int, Duration>.from(map['dailyWorkingHours'].map((key, value) => MapEntry(int.parse(key), Duration(minutes: value)))),
       breakDurationMinutes: map['breakDurationMinutes'],
-      breakAfterHours: map['breakAfterHours'],
+      breakAfterHours: Duration(minutes: map['breakAfterHours']),
     );
+  }
+
+  Duration getExpectedWorkHours(DateTime date) {
+    return dailyWorkingHours[date.weekday]!;
   }
 }
 
@@ -34,7 +38,8 @@ class SettingsHelper {
 
   static Future<void> saveUserSettings(UserSettings settings) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(SETTINGS_KEY, jsonEncode(settings.toMap()));
+    var map = settings.toMap();
+    await prefs.setString(SETTINGS_KEY, jsonEncode(map));
   }
 
   static Future<UserSettings?> getUserSettings() async {
@@ -45,10 +50,15 @@ class SettingsHelper {
     return UserSettings.fromMap(settingsMap);
   }
 
-  static Future<double> getWorkingHours(int weekday) async {
-    UserSettings? settings = await getUserSettings();
-
-    if (settings == null) return 0;
-    return settings.dailyWorkingHours[weekday] ?? 0;
+  static Future<void> deleteUserSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SETTINGS_KEY);
   }
+
+  // static Future<double> getWorkingHours(int weekday) async {
+  //   UserSettings? settings = await getUserSettings();
+
+  //   if (settings == null) return 0;
+  //   return settings.dailyWorkingHours[weekday] == null ? 0 : settings.dailyWorkingHours[weekday]!.inMinutes.toDouble();
+  // }
 }

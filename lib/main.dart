@@ -89,14 +89,7 @@ class _TimeTrackingAppState extends State<TimeTrackingApp> {
   Widget build(BuildContext context) {
     return Consumer<SettingsController>(
       builder: (context, settingsController, _) {
-        if (settingsController.settings == null) {
-          settingsController.loadUserSettings();
-          return const CupertinoPageScaffold(
-            child: Center(child: CupertinoActivityIndicator()),
-          );
-        } else {
-          return settingsController.settings == null ? IntroductionPage() : TimeTrackingListPage();
-        }
+        return settingsController.settings == null ? IntroductionPage() : TimeTrackingListPage();
       },
     );
   }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
 import 'package:timing/src/view/macros/BottomSheetTemplate.dart';
+import 'package:timing/src/view/macros/ContextManager.dart';
 import 'package:timing/src/view/pages/home/Add/Overtime.dart';
 
 enum WorkDayType {
@@ -19,13 +20,13 @@ class WorkDay {
 
   WorkDay({required this.date, required this.type, required this.minutes});
 
-  int getMinutes() {
-    return minutes;
+  Duration getDuration() {
+    return Duration(minutes: minutes);
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'minutes': getMinutes(),
+      'minutes': getDuration().inMinutes,
       'type': type.index,
       'date': date.toIso8601String(),
     };
@@ -36,41 +37,26 @@ class WorkDay {
       onTap: () {
         showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetEntryForm(child: EntryOvertimePage(workDay: this)));
       },
-      onLongPress: () => showCupertinoDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CupertinoAlertDialog(
-            title: const Text('Delete Entry'),
-            content: const Text('Do you really want to delete this entry?'),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              CupertinoDialogAction(
-                isDestructiveAction: true,
-                child: const Text('Delete'),
-                onPressed: () {
-                  Provider.of<TimeTrackingController>(context, listen: false).deleteWorkDay(this);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      ),
+      onLongPress: () => ContextManager.showDeletePopup(context, () => Provider.of<TimeTrackingController>(context, listen: false).deleteWorkDay(this)),
       child: Container(
-          margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+          margin: const EdgeInsets.fromLTRB(6, 6, 0, 0),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(border: Border.all(color: const Color.fromARGB(107, 242, 242, 247)), borderRadius: BorderRadius.circular(10), color: const Color.fromARGB(72, 216, 216, 225)),
           child: Row(
             children: [
-              const Icon(
-                CupertinoIcons.timelapse,
-                size: 20,
-              ),
+              minutes > 0
+                  ? const Icon(
+                      CupertinoIcons.timelapse,
+                      size: 20,
+                    )
+                  : const Icon(
+                      CupertinoIcons.timelapse,
+                      size: 20,
+                      color: CupertinoColors.systemRed,
+                    ),
               const SizedBox(width: 8),
-              Text("${(minutes / 60).toStringAsFixed(2)} h", style: const CupertinoTextThemeData().textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300)),
+              Text(minutes > 0 ? "${(minutes / 60).toStringAsFixed(2)} h" : "${((minutes * -1) / 60).toStringAsFixed(2)} h",
+                  style: const CupertinoTextThemeData().textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300)),
             ],
           )),
     );

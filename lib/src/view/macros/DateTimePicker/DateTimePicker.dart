@@ -102,3 +102,54 @@ class DurationPicker extends StatelessWidget {
     );
   }
 }
+
+class DurationPickerMinute extends StatelessWidget {
+  final Duration initialDuration;
+  final ValueChanged<Duration> onDurationChanged;
+
+  DurationPickerMinute({
+    super.key,
+    required this.initialDuration,
+    required this.onDurationChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final initialMinutes = (initialDuration.inMinutes / 5).round(); // Initial in 5er-Schritten
+
+    return SizedBox(
+      height: 200,
+      child: CupertinoPicker(
+        itemExtent: 40.0, // Höhe jedes Items
+        scrollController: FixedExtentScrollController(initialItem: initialMinutes),
+        onSelectedItemChanged: (int index) {
+          onDurationChanged(Duration(minutes: index * 5)); // Minuten in 5er-Schritten ändern
+        },
+        children: List<Widget>.generate(100, (int index) {
+          // 12 Einträge für 0 bis 55 Minuten
+          final minutes = index * 5;
+          return Center(
+            child: RichText(
+              text: TextSpan(
+                text: '$minutes',
+                style: const TextStyle(
+                  fontSize: 24.0, // Größere Schriftgröße für die Zahl
+                  color: CupertinoColors.black,
+                ),
+                children: const <TextSpan>[
+                  TextSpan(
+                    text: ' Min.',
+                    style: TextStyle(
+                      fontSize: 14.0, // Kleinere Schriftgröße für "Minuten"
+                      color: CupertinoColors.systemGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}

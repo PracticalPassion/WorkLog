@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:sqflite/sqflite.dart';
+import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/Month.dart';
 import 'package:timing/src/model/WorkDay.dart';
 import 'package:timing/src/model/database/database.dart';
@@ -24,6 +27,17 @@ class TimeEntryTemplate {
       'end': end.toIso8601String(),
       'pause': pause?.inMinutes ?? 0,
     };
+  }
+
+  static int calculateDesiredBreak(DateTime start, DateTime end, SettingsController settingsController) {
+    final workDuration = end.difference(start);
+    final workedMinutes = workDuration.inMinutes;
+
+    if (workedMinutes >= (settingsController.settings!.breakAfterHours.inMinutes)) {
+      return min(settingsController.settings!.breakDurationMinutes, workedMinutes - (settingsController.settings!.breakAfterHours.inMinutes));
+    }
+
+    return 0;
   }
 }
 
@@ -95,14 +109,24 @@ class TimeEntry {
 
 class TimeTrackingEntry {
   DateTime date;
-  double expectedWorkHours;
+  Duration expectedWorkHours;
   String description;
   WorkDay? workDay;
   List<TimeEntry> timeEntries;
 
   TimeTrackingEntry({required this.date, this.description = '', required this.timeEntries, required this.expectedWorkHours, this.workDay});
 
-  Duration get netDuration => timeEntries.fold(Duration.zero, (total, entry) => total + entry.duration) - (Duration(minutes: workDay != null ? workDay!.getMinutes() : 0));
+  Duration get netDuration {
+    Duration dur = timeEntries.fold(Duration.zero, (total, entry) => total + entry.duration);
+    dur = dur + (workDay?.getDuration() ?? Duration.zero);
+
+    if (workDay != null && workDay!.minutes < 0) {
+      assert(timeEntries.length == 0);
+      dur = Duration(minutes: workDay!.minutes);
+    }
+
+    return dur;
+  }
 
   // 3. Über Nacht Einträge aufteilen
   void splitOvernightEntries() {
@@ -144,7 +168,7 @@ class TimeTrackingEntry {
       final workDuration = entry.netDuration;
       final workHours = workDuration.inHours;
       final workMinutes = workDuration.inMinutes % 60;
-      final difference = workHours + workMinutes / 60 - entry.expectedWorkHours;
+      final difference = workHours + workMinutes / 60 - (entry.expectedWorkHours.inMinutes * 60);
       totalOvertime += difference;
     }
     return totalOvertime;
@@ -161,7 +185,7 @@ class TimeTrackingEntry {
         final workDuration = entry.netDuration;
         final workHours = workDuration.inHours;
         final workMinutes = workDuration.inMinutes % 60;
-        final difference = workHours + workMinutes / 60 - entry.expectedWorkHours;
+        final difference = workHours + workMinutes / 60 - (entry.expectedWorkHours.inMinutes * 60);
         totalOvertime += difference;
       }
     }
