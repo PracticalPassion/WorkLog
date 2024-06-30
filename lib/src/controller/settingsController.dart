@@ -7,7 +7,7 @@ class SettingsController extends ChangeNotifier {
   UserSettings? get settings => _settings;
 
   Future<void> loadUserSettings() async {
-    await deleteUserSettings();
+    // await deleteUserSettings();
     _settings = await SettingsHelper.getUserSettings();
     notifyListeners();
   }

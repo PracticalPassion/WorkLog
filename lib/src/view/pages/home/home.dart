@@ -5,10 +5,10 @@ import 'package:timing/src/controller/TimeEntryController.dart';
 import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/Month.dart';
 import 'package:timing/src/model/TimeEntry.dart';
-import 'package:timing/src/model/WorkDay.dart';
-import 'package:timing/src/model/database/database.dart';
 import 'package:timing/src/view/macros/BottomSheetTemplate.dart';
 import 'package:timing/src/view/macros/ContentView.dart';
+import 'package:timing/src/view/pages/settings/BaseSettings.dart';
+import 'package:timing/src/view/pages/settings/Intoduction.dart';
 import 'package:timing/src/view/pages/home/Add/FormPopUp.dart';
 import 'package:timing/src/view/pages/home/HoursThisWeek.dart';
 import 'package:timing/src/view/pages/home/MonthSelection.dart';
@@ -22,6 +22,8 @@ class TimeTrackingListPage extends StatefulWidget {
 }
 
 class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
+  bool loading = true;
+
   @override
   void initState() {
     super.initState();
@@ -64,25 +66,11 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
   Future<void> _initializeData() async {
     final timeTrackingController = Provider.of<TimeTrackingController>(context, listen: false);
     final settingController = Provider.of<SettingsController>(context, listen: false);
+    await settingController.loadUserSettings();
     await timeTrackingController.loadEntries();
-
-    // if (timeTrackingController.entries.isEmpty) {
-    //   var db = await DatabaseHelper().database;
-
-    //   await WorkDay(
-    //     date: DateTime.now(),
-    //     type: WorkDayType.overtime,
-    //     minutes: 420,
-    //   ).save(db);
-    //   await WorkDay(
-    //     date: DateTime.now().subtract(Duration(days: 3)),
-    //     type: WorkDayType.overtime,
-    //     minutes: -480,
-    //   ).save(db);
-
-    //   await timeTrackingController.createSampleEntries(settingController);
-    //   await timeTrackingController.loadEntries();
-    // }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -92,64 +80,76 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
 
     List<Month> months = TimeTrackingEntry.getMonthsOfYear(DateTime.now().year);
 
-    return Scaffold(
-      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(child: TotalOvertimeWidget(totalOvertime: timeTrackingController.totalOvertime)),
-                Expanded(child: HoursThisWeekWidget(weeklyHours: weeklyHours)),
-              ],
-            ),
-            Expanded(
-              child: ContentView(
-                margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: MonthSelectionWidget(
-                            months: months.map((month) => month.getName(Localizations.localeOf(context))).toList(),
-                            selectedIndex: months.indexWhere((month) => month.isSameMonth(timeTrackingController.currentMonth)),
-                            onSelect: (index) {
-                              setState(() {
-                                timeTrackingController.currentMonth = months[index];
-                              });
-                            },
+    return loading
+        ? CupertinoPageScaffold(child: CupertinoActivityIndicator())
+        : Scaffold(
+            backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                          child: Container(padding: const EdgeInsets.all(10), child: const Icon(CupertinoIcons.settings)),
+                          onTap: () {
+                            showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetWidget(child: BaseSettings()));
+                          })
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(child: TotalOvertimeWidget(totalOvertime: timeTrackingController.totalOvertime)),
+                      Expanded(child: HoursThisWeekWidget(weeklyHours: weeklyHours)),
+                    ],
+                  ),
+                  Expanded(
+                    child: ContentView(
+                      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: MonthSelectionWidget(
+                                  months: months.map((month) => month.getName(Localizations.localeOf(context))).toList(),
+                                  selectedIndex: months.indexWhere((month) => month.isSameMonth(timeTrackingController.currentMonth)),
+                                  onSelect: (index) {
+                                    setState(() {
+                                      timeTrackingController.currentMonth = months[index];
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              CupertinoButton(
+                                child: const Icon(CupertinoIcons.add),
+                                onPressed: () {
+                                  if (timeTrackingController.lastStartTime == null) {
+                                    showCupertinoModalPopup(
+                                      useRootNavigator: true,
+                                      context: context,
+                                      builder: (context) => BottomSheetWidget(child: FormPopUp()),
+                                    );
+                                    return;
+                                  }
+                                  _showCupertinoSnackBar('One entry is already running. Please stop it first.');
+                                },
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        CupertinoButton(
-                          child: const Icon(CupertinoIcons.add),
-                          onPressed: () {
-                            if (timeTrackingController.lastStartTime == null) {
-                              showCupertinoModalPopup(
-                                useRootNavigator: true,
-                                context: context,
-                                builder: (context) => BottomSheetEntryForm(child: FormPopUp()),
-                              );
-                              return;
-                            }
-                            _showCupertinoSnackBar('One entry is already running. Please stop it first.');
-                          },
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          const TimeEntriesListWidget(),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    const TimeEntriesListWidget(),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: QuickAddEntryWidgetColored(),
-    );
+            floatingActionButton: QuickAddEntryWidgetColored(),
+          );
   }
 }

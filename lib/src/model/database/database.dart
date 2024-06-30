@@ -24,7 +24,7 @@ class DatabaseHelper {
   }
 
   Future<void> initDatabase() async {
-    await deleteThisDatabase();
+    // await deleteThisDatabase();
     _database = await _initDatabase();
   }
 
@@ -41,7 +41,8 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE TABLE work_days (
-        date TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY,
+        date TEXT,
         type INTEGER,
         minutes INTEGER
       )

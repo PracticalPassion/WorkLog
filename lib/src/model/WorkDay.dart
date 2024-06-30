@@ -14,11 +14,12 @@ enum WorkDayType {
 }
 
 class WorkDay {
+  int? id;
   WorkDayType type;
   int minutes;
   DateTime date;
 
-  WorkDay({required this.date, required this.type, required this.minutes});
+  WorkDay({required this.date, required this.type, required this.minutes, this.id});
 
   Duration getDuration() {
     return Duration(minutes: minutes);
@@ -26,16 +27,17 @@ class WorkDay {
 
   Map<String, dynamic> toMap() {
     return {
-      'minutes': getDuration().inMinutes,
-      'type': type.index,
+      'id': id,
       'date': date.toIso8601String(),
+      'type': type.index,
+      'minutes': getDuration().inMinutes,
     };
   }
 
   Widget getWidget(context) {
     return GestureDetector(
       onTap: () {
-        showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetEntryForm(child: EntryOvertimePage(workDay: this)));
+        showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetWidget(child: EntryOvertimePage(workDay: this)));
       },
       onLongPress: () => ContextManager.showDeletePopup(context, () => Provider.of<TimeTrackingController>(context, listen: false).deleteWorkDay(this)),
       child: Container(
@@ -64,6 +66,7 @@ class WorkDay {
 
   factory WorkDay.fromMap(Map<String, dynamic> map) {
     return WorkDay(
+      id: map['id'],
       date: DateTime.parse(map['date']),
       type: WorkDayType.values[map['type']],
       minutes: map['minutes'],
@@ -75,11 +78,12 @@ class WorkDay {
   }
 
   Future<void> update(Database db) async {
-    await db.update('work_days', toMap(), where: 'date = ?', whereArgs: [date.toIso8601String()]);
+    var res = await db.update('work_days', toMap(), where: 'id = ?', whereArgs: [id]);
+    print(res);
   }
 
   Future<void> delete(Database db) async {
-    await db.delete('work_days', where: 'date = ?', whereArgs: [date.toIso8601String()]);
+    await db.delete('work_days', where: 'id = ?', whereArgs: [id]);
   }
 
   static Future<List<WorkDay>> getAll(Database db) async {

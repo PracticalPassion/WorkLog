@@ -6,8 +6,10 @@ import 'package:timing/src/controller/TimeEntryController.dart';
 import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/WorkDay.dart';
 import 'package:timing/src/view/Helper/Extentions/DurationExtention.dart';
+import 'package:timing/src/view/Helper/Utils.dart';
 import 'package:timing/src/view/macros/BorderWithText.dart';
 import 'package:timing/src/view/macros/ContextManager.dart';
+import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
 import 'package:timing/src/view/macros/DateTimePicker/Helper.dart';
 import 'package:timing/src/view/pages/home/Add/FormTemplate.dart';
 
@@ -206,5 +208,25 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
         ],
       ),
     ]);
+  }
+
+  void showDateFilterWidgetPopUp(BuildContext context, DateTime time, Function(DateTime) onPressed) {
+    Utils.showSheet(
+      context,
+      child: SizedBox(
+        height: 250,
+        child: DatePicker(
+          initialDateTime: time,
+          onDateTimeChanged: (DateTime newDateTime) {
+            onPressed(newDateTime);
+            time = newDateTime;
+          },
+        ),
+      ),
+      onClicked: () {
+        onPressed(time);
+        Navigator.of(context).pop();
+      },
+    );
   }
 }

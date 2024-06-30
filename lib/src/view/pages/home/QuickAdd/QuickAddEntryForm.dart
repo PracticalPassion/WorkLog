@@ -3,8 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:timing/src/controller/TimeEntryController.dart';
 import 'package:timing/src/controller/settingsController.dart';
 import 'package:timing/src/model/TimeEntry.dart';
+import 'package:timing/src/view/Helper/Extentions/DateTimeExtention.dart';
+import 'package:timing/src/view/Helper/Extentions/DurationExtention.dart';
+import 'package:timing/src/view/macros/BorderWithText.dart';
 import 'package:timing/src/view/macros/ContextManager.dart';
 import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
+import 'package:timing/src/view/macros/DateTimePicker/Helper.dart';
 
 class QuickAddEntryForm extends StatefulWidget {
   @override
@@ -14,6 +18,7 @@ class QuickAddEntryForm extends StatefulWidget {
 class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
   DateTime? _selectedDateTime;
   String? _errorText;
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
@@ -29,6 +34,18 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
       DateTime time = timeTrackingController.lastStartTime!;
       _selectedDateTime = DateTimePicker5.rountTime(time.add(const Duration(minutes: 15)));
     }
+  }
+
+  Duration getDuration(settingsController, TimeTrackingController timeTrackingController) {
+    DateTime startTime = timeTrackingController.lastStartTime!;
+
+    if (_selectedDateTime == null) {
+      return const Duration(minutes: 0);
+    }
+
+    return Duration(
+        minutes: TimeEntryTemplate.calculateDesiredBreak(DateTime(startTime.year, startTime.month, startTime.day, startTime.hour, startTime.minute),
+            DateTime(_selectedDateTime!.year, _selectedDateTime!.month, _selectedDateTime!.day, _selectedDateTime!.hour, _selectedDateTime!.minute), settingsController));
   }
 
   @override
@@ -51,7 +68,16 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                     "Begin a new entry",
                     style: TextStyle(fontSize: 20),
                   )
-                : Text(timeTrackingController.lastStartTime.toString()),
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text("Started:  ", style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(fontSize: 15)),
+                      Text(timeTrackingController.lastStartTime!.longDateWithDay(), style: const TextStyle(fontSize: 20)),
+                      const SizedBox(width: 10),
+                      Text(timeTrackingController.lastStartTime!.formatTime2H2M(), style: const TextStyle(fontSize: 20)),
+                    ],
+                  ),
             SizedBox(
               height: 250,
               child: DateTimePicker5(
@@ -63,6 +89,50 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                 },
               ),
             ),
+            const SizedBox(height: 10),
+            if (timeTrackingController.lastStartTime != null)
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text("Pause", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+                        ),
+                        const Spacer(),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SizedBox(
+                            width: 50,
+                            child: BorderedWithText(
+                              textWidget: Text(
+                                  _controller.text.isEmpty
+                                      ? (getDuration(settingsController, timeTrackingController).formatDaration1H2M())
+                                      : Duration(minutes: int.parse(_controller.text)).formatDaration1H2M(),
+                                  style: TextStyle(color: _controller.text.isEmpty ? CupertinoColors.systemGrey : null)),
+                              onPressed: () {
+                                FilterHelpers.showDurationOnlyMinuteFilterWidgetPopUp(
+                                    context, _controller.text.isEmpty ? getDuration(settingsController, timeTrackingController) : Duration(minutes: int.parse(_controller.text)), (newDuration) {
+                                  setState(() {
+                                    _controller.text = newDuration.inMinutes.toString();
+                                  });
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
             const SizedBox(height: 10),
             if (_errorText != null)
               Container(
@@ -101,7 +171,8 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
 
                       timeTrackingController.saveCurrentStartTime(_selectedDateTime!);
                     } else {
-                      var result = timeTrackingController.stopCurrentEntry(_selectedDateTime!, settingsController);
+                      Duration breakTime = _controller.text.isEmpty ? getDuration(settingsController, timeTrackingController) : Duration(minutes: (double.parse(_controller.text)).toInt());
+                      var result = timeTrackingController.stopCurrentEntry(_selectedDateTime!, settingsController, breakTime);
                       if (result != null) {
                         setState(() {
                           _errorText = result;

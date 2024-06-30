@@ -296,7 +296,7 @@ class TimeTrackingController extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? stopCurrentEntry(DateTime time, SettingsController settingsController) {
+  String? stopCurrentEntry(DateTime time, SettingsController settingsController, Duration pause) {
     assert(_lastStartTime != null);
     if (_lastStartTime == null) {
       return 'No start time found';
@@ -306,7 +306,7 @@ class TimeTrackingController extends ChangeNotifier {
       return 'End time is before start time';
     }
 
-    final entry = TimeEntryTemplate(start: _lastStartTime!, end: time);
+    final entry = TimeEntryTemplate(start: _lastStartTime!, end: time, pause: pause);
     saveEntryTemplate(entry);
     removeCurrentStartTime();
     return null;

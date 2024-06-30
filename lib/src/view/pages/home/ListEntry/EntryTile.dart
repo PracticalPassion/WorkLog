@@ -28,6 +28,8 @@ class _EntryTileState extends State<EntryTile> {
     final difference = Duration(minutes: (widget.entry.netDuration.inMinutes < 0 ? 0 : widget.entry.netDuration.inMinutes) - dura.inMinutes);
     final date = widget.entry.date;
 
+    List<TimeEntry> sortedEntries = List.from(widget.entry.timeEntries)..sort((a, b) => a.start.compareTo(b.start));
+
     return Container(
       decoration: const BoxDecoration(
         border: Border(
@@ -71,9 +73,9 @@ class _EntryTileState extends State<EntryTile> {
                     widget.entry.workDay == null ? const SizedBox() : widget.entry.workDay!.getWidget(context),
                     Column(
                       // crossAxisAlignment: CrossAxisAlignment.start,
-                      children: widget.entry.timeEntries.map((timeEntry) {
+                      children: sortedEntries.map((timeEntry) {
                         return GestureDetector(
-                          onTap: () => showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetEntryForm(child: EntryFormPage(entry: timeEntry))),
+                          onTap: () => showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetWidget(child: EntryFormPage(entry: timeEntry))),
                           // popup to delete or edit
                           onLongPress: () => ContextManager.showDeletePopup(context, () => timeTrackingController.deleteEntry(timeEntry)),
 

@@ -19,6 +19,10 @@ extension DateTimeString on DateTime {
     return "$day.$month.";
   }
 
+  String longDateWithDay() {
+    return "${getWeekDayName(const Locale('de'))}, $day.$month.$year";
+  }
+
   DateTime roundToMinute() {
     // Sekunden und Millisekunden entfernen
     DateTime truncated = DateTime(
