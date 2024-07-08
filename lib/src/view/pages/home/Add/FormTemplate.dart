@@ -7,26 +7,22 @@ class FormLayout extends StatelessWidget {
   final List<Widget> children;
   final Widget? footer;
   final bool showDividers;
+  final Color backgroundColor;
 
-  const FormLayout({super.key, required this.title, required this.children, this.footer, this.showDividers = false});
+  const FormLayout({super.key, required this.title, required this.children, this.footer, this.showDividers = false, this.backgroundColor = CupertinoColors.systemGrey6});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: CupertinoColors.systemGrey6,
-        borderRadius: BorderRadius.all(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: const BorderRadius.all(
           Radius.circular(15),
         ),
       ),
       child: Column(
         children: [
           if (title != null) Text(title!, style: const CupertinoTextThemeData().navTitleTextStyle),
-          if (title != null)
-            const Divider(
-              height: 20,
-              thickness: 1,
-            ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
             padding: const EdgeInsets.all(16.0),

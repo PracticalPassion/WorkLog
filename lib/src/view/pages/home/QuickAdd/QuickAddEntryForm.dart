@@ -9,6 +9,7 @@ import 'package:timing/src/view/macros/BorderWithText.dart';
 import 'package:timing/src/view/macros/ContextManager.dart';
 import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
 import 'package:timing/src/view/macros/DateTimePicker/Helper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class QuickAddEntryForm extends StatefulWidget {
   @override
@@ -64,15 +65,15 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
         child: Column(
           children: [
             timeTrackingController.lastStartTime == null
-                ? const Text(
-                    "Begin a new entry",
+                ? Text(
+                    AppLocalizations.of(context)!.newEntry,
                     style: TextStyle(fontSize: 20),
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text("Started:  ", style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(fontSize: 15)),
+                      Text("${AppLocalizations.of(context)!.started}:  ", style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(fontSize: 15)),
                       Text(timeTrackingController.lastStartTime!.longDateWithDay(), style: const TextStyle(fontSize: 20)),
                       const SizedBox(width: 10),
                       Text(timeTrackingController.lastStartTime!.formatTime2H2M(), style: const TextStyle(fontSize: 20)),
@@ -103,7 +104,7 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                       children: [
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text("Pause", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+                          child: Text(AppLocalizations.of(context)!.breakStr, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
                         ),
                         const Spacer(),
                         Align(
@@ -151,20 +152,23 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text("Cancel"),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 CupertinoButton.filled(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   onPressed: () async {
                     if (!timeTrackingController.validateOvertime(TimeEntryTemplate(start: _selectedDateTime!, end: _selectedDateTime!))) {
-                      ContextManager.showInfoPopup(context,
-                          "Cannot reduce to less than daily working hours. Add a Time Entry with your working time. E.g. if you work 8 hours a day, add a Time Entry with 4 hours. The remaining 4 hours will be considered as overtime.");
+                      // ContextManager.showInfoPopup(context,
+                      //     "Cannot reduce to less than daily working hours. Add a Time Entry with your working time. E.g. if you work 8 hours a day, add a Time Entry with 4 hours. The remaining 4 hours will be considered as overtime.");
+                      ContextManager.showInfoPopup(context, AppLocalizations.of(context)!.errText2);
                       return;
                     }
                     if (timeTrackingController.lastStartTime == null) {
                       if (timeTrackingController.startTimeOverlaps(_selectedDateTime!, null)) {
                         setState(() {
-                          _errorText = 'Quick add is only possible if there are no other entries after the selected time.';
+                          // _errorText = 'Quick add is only possible if there are no other entries after the selected time.';
+
+                          _errorText = AppLocalizations.of(context)!.errText1;
                         });
                         return;
                       }
@@ -183,7 +187,7 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    timeTrackingController.lastStartTime == null ? "Start" : "Stop",
+                    timeTrackingController.lastStartTime == null ? AppLocalizations.of(context)!.start : AppLocalizations.of(context)!.stop,
                   ),
                 ),
               ],

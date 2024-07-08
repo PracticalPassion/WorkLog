@@ -7,11 +7,13 @@ class TemplateRow extends StatelessWidget {
   final String leftName;
   final Widget rightTextWidget;
   final VoidCallback rightTextOnPressed;
+  final bool replaceRightWidget;
 
   const TemplateRow({
     required this.leftName,
     required this.rightTextWidget,
     required this.rightTextOnPressed,
+    this.replaceRightWidget = false,
   });
 
   @override
@@ -25,10 +27,12 @@ class TemplateRow extends StatelessWidget {
         const Spacer(),
         Align(
           alignment: Alignment.centerRight,
-          child: BorderedWithText(
-            onPressed: rightTextOnPressed,
-            textWidget: rightTextWidget,
-          ),
+          child: replaceRightWidget
+              ? rightTextWidget
+              : BorderedWithText(
+                  onPressed: rightTextOnPressed,
+                  textWidget: rightTextWidget,
+                ),
         ),
       ],
     );

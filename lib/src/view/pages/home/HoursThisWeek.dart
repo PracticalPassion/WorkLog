@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:timing/src/view/macros/ContentView.dart';
 import 'package:timing/src/view/pages/home/InfoTile.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HoursThisWeekWidget extends StatelessWidget {
   final double weeklyHours;
@@ -13,7 +14,7 @@ class HoursThisWeekWidget extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       padding: const EdgeInsets.all(10),
       child: InfoTile(
-        title: 'Hours this Week',
+        title: AppLocalizations.of(context)!.hoursThisWeek,
         value: '${weeklyHours.toStringAsFixed(2)} h',
       ),
     );

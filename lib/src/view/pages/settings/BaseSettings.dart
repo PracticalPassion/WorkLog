@@ -44,21 +44,19 @@ class _BaseSettingsState extends State<BaseSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: TimeSheetSettingsWidget(
-        sortedWeekDays: sortedWeekDays,
-        dailyWorkingHours: dailyWorkingHours,
-        breakDurationMinutes: breakDurationMinutes,
-        breakAfterHours: breakAfterHours,
-        onSettingsChanged: (newDailyWorkingHours, newBreakDurationMinutes, newBreakAfterHours) {
-          setState(() {
-            dailyWorkingHours.addAll(newDailyWorkingHours);
-            breakDurationMinutes = newBreakDurationMinutes;
-            breakAfterHours = newBreakAfterHours;
-          });
-        },
-        afterSuccess: () => Navigator.pop(context),
-      ),
+    return TimeSheetSettingsWidget(
+      sortedWeekDays: sortedWeekDays,
+      dailyWorkingHours: dailyWorkingHours,
+      breakDurationMinutes: breakDurationMinutes,
+      breakAfterHours: breakAfterHours,
+      onSettingsChanged: (newDailyWorkingHours, newBreakDurationMinutes, newBreakAfterHours) {
+        setState(() {
+          dailyWorkingHours.addAll(newDailyWorkingHours);
+          breakDurationMinutes = newBreakDurationMinutes;
+          breakAfterHours = newBreakAfterHours;
+        });
+      },
+      afterSuccess: () => Navigator.pop(context),
     );
   }
 }

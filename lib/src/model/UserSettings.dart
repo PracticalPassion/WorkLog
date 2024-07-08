@@ -54,11 +54,4 @@ class SettingsHelper {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(SETTINGS_KEY);
   }
-
-  // static Future<double> getWorkingHours(int weekday) async {
-  //   UserSettings? settings = await getUserSettings();
-
-  //   if (settings == null) return 0;
-  //   return settings.dailyWorkingHours[weekday] == null ? 0 : settings.dailyWorkingHours[weekday]!.inMinutes.toDouble();
-  // }
 }

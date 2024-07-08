@@ -42,12 +42,11 @@ class TimeTrackingController extends ChangeNotifier {
     final dbHelper = DatabaseHelper();
     final db = await dbHelper.database;
 
-    UserSettings? _settings = await SettingsHelper.getUserSettings();
-
+    UserSettings? settings = await SettingsHelper.getUserSettings();
     List<TimeEntry> timeEntries = await TimeEntry.getAll(db);
     List<WorkDay> workDays = await WorkDay.getAll(db);
 
-    _entries = _mapTimeEntriesToTrackingEntries(timeEntries, workDays, _settings!);
+    _entries = _mapTimeEntriesToTrackingEntries(timeEntries, workDays, settings!);
 
     totalOvertime = _calculateTotalOvertime(_entries);
     _updateMonthlyOvertime();
@@ -162,6 +161,8 @@ class TimeTrackingController extends ChangeNotifier {
     return false;
   }
 
+  Future<void> onUserSaveTimeEntry() async {}
+
   Future<void> saveEntryTemplate(TimeEntryTemplate entry) async {
     final dbHelper = DatabaseHelper();
     final db = await dbHelper.database;
@@ -231,39 +232,6 @@ class TimeTrackingController extends ChangeNotifier {
       totalOvertime += duration;
     }
     return totalOvertime;
-  }
-
-  Future<void> createSampleEntries(SettingsController settingController) async {
-    List<TimeEntryTemplate> sampleEntries = [
-      TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 10)).roundToMinute(),
-        end: DateTime.now().subtract(const Duration(days: 1, hours: 8)).roundToMinute(),
-      ),
-      TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 6)).roundToMinute(),
-        end: DateTime.now().subtract(const Duration(days: 1, hours: 4)).roundToMinute(),
-      ),
-      TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 2)).roundToMinute(),
-        end: DateTime.now().subtract(const Duration(days: 1, hours: 1)).roundToMinute(),
-      ),
-      TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 1, hours: 2)).roundToMinute(),
-        end: DateTime.now().subtract(const Duration(days: 0, hours: 0)).roundToMinute(),
-      ),
-      TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 2, hours: 9)).roundToMinute(),
-        end: DateTime.now().subtract(const Duration(days: 2, hours: 7)).roundToMinute(),
-      ),
-      TimeEntryTemplate(
-        start: DateTime.now().subtract(const Duration(days: 2, hours: 5)).roundToMinute(),
-        end: DateTime.now().subtract(const Duration(days: 2, hours: 3)).roundToMinute(),
-      ),
-    ];
-
-    for (var entry in sampleEntries) {
-      await saveEntryTemplate(entry);
-    }
   }
 
   Future<bool> hasStartTime() async {

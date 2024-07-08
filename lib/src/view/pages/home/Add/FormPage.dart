@@ -14,11 +14,15 @@ import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
 import 'package:timing/src/view/macros/DateTimePicker/Helper.dart';
 import 'package:timing/src/view/macros/Overlay.dart';
 import 'package:timing/src/view/pages/home/Add/FormTemplate.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EntryFormPage extends StatefulWidget {
   final TimeEntry? entry;
+  final DateTime? passedStart;
+  final DateTime? passedEnd;
+  final String? title;
 
-  const EntryFormPage({super.key, this.entry});
+  const EntryFormPage({super.key, this.entry, this.passedStart, this.passedEnd, this.title});
 
   @override
   _EntryFormPageState createState() => _EntryFormPageState();
@@ -37,11 +41,14 @@ class _EntryFormPageState extends State<EntryFormPage> {
   @override
   void initState() {
     super.initState();
-    DateTime now = DateTime.now();
-    _startTime = DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
-    _endTime = DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
-    loadDataFrom();
 
+    DateTime now = DateTime.now();
+
+    _startTime = widget.passedStart ?? DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
+
+    _endTime = widget.passedEnd ?? DateTimePicker5.rountTime(DateTime(now.year, now.month, now.day, now.hour, now.minute));
+
+    loadDataFrom();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         _showOverlay();
@@ -49,6 +56,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
         _removeOverlay();
       }
     });
+
     if (widget.entry != null && widget.entry!.pause != null && widget.entry!.pause!.inMinutes > 0) {
       _controller.text = (widget.entry!.pause!.inMinutes).toString();
     }
@@ -109,7 +117,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
     final settingsController = Provider.of<SettingsController>(context);
 
     return FormLayout(
-      title: widget.entry != null ? "Change Entry" : "New Entry",
+      title: widget.title ?? (widget.entry != null ? AppLocalizations.of(context)!.changeEntry : ""),
       footer: Column(
         children: [
           Text(
@@ -124,11 +132,12 @@ class _EntryFormPageState extends State<EntryFormPage> {
               child: Column(
                 children: [
                   CupertinoButton.filled(
-                    child: const Text("Save"),
+                    child: Text(AppLocalizations.of(context)!.save),
                     onPressed: () {
                       if (_endTime.isBefore(_startTime)) {
                         setState(() {
-                          _errorText = 'End Date cannot be before Start Date';
+                          // _errorText = 'End Date cannot be before Start Date';
+                          _errorText = AppLocalizations.of(context)!.errText7;
                         });
                         return;
                       }
@@ -148,14 +157,16 @@ class _EntryFormPageState extends State<EntryFormPage> {
 
                       if (!timeTrackingController.validateOvertime(timeEntry)) {
                         setState(() {
-                          _errorText = 'Day has alread a negative overtime';
+                          // _errorText = 'Day has alread a negative overtime';
+                          _errorText = AppLocalizations.of(context)!.errText9;
                         });
                         return;
                       }
 
                       if (timeEntry.end.difference(timeEntry.start).inMinutes < 15) {
                         setState(() {
-                          _errorText = 'Minimum duration is 15 minutes';
+                          // _errorText = 'Minimum duration is 15 minutes';
+                          _errorText = AppLocalizations.of(context)!.errText8;
                         });
                         return;
                       }
@@ -163,7 +174,8 @@ class _EntryFormPageState extends State<EntryFormPage> {
                       if (localEntry != null) {
                         if (timeTrackingController.requestEntryOverlaps(timeEntry, localEntry!)) {
                           setState(() {
-                            _errorText = 'Entry overlaps with another entry';
+                            // _errorText = 'Entry overlaps with another entry';
+                            _errorText = AppLocalizations.of(context)!.errText10;
                           });
                           return;
                         }
@@ -174,7 +186,8 @@ class _EntryFormPageState extends State<EntryFormPage> {
                       } else {
                         if (timeTrackingController.requestEntryOverlaps(timeEntry, null)) {
                           setState(() {
-                            _errorText = 'Entry overlaps with another entry';
+                            // _errorText = 'Entry overlaps with another entry';
+                            _errorText = AppLocalizations.of(context)!.errText10;
                           });
                           return;
                         }
@@ -186,7 +199,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
                   const SizedBox(height: 20),
                   if (widget.entry != null)
                     CupertinoButton(
-                      child: const Text("Delete", style: TextStyle(color: CupertinoColors.destructiveRed)),
+                      child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: CupertinoColors.destructiveRed)),
                       onPressed: () {
                         timeTrackingController.deleteEntry(widget.entry!);
                         Navigator.pop(context);
@@ -203,7 +216,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("Start", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+              child: Text(AppLocalizations.of(context)!.start, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
             ),
             const Spacer(),
             Align(
@@ -226,7 +239,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("End", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+              child: Text(AppLocalizations.of(context)!.end, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
             ),
             const Spacer(),
             Align(
@@ -247,7 +260,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("Pause", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+              child: Text(AppLocalizations.of(context)!.breakStr, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
             ),
             const Spacer(),
             Align(

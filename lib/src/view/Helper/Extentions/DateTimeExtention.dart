@@ -19,6 +19,10 @@ extension DateTimeString on DateTime {
     return "$day.$month.";
   }
 
+  String dayShortDate() {
+    return "$day.";
+  }
+
   String longDateWithDay() {
     return "${getWeekDayName(const Locale('de'))}, $day.$month.$year";
   }

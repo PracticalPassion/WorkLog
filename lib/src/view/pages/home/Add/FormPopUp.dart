@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:timing/src/view/pages/home/Add/FormPage.dart';
 import 'package:timing/src/view/pages/home/Add/Overtime.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FormPopUp extends StatefulWidget {
-  const FormPopUp({Key? key}) : super(key: key);
+  final DateTime? passedStart;
+  final DateTime? passedEnd;
+
+  const FormPopUp({super.key, this.passedStart, this.passedEnd});
 
   @override
   _FormPopUpState createState() => _FormPopUpState();
@@ -12,13 +16,18 @@ class FormPopUp extends StatefulWidget {
 class _FormPopUpState extends State<FormPopUp> {
   int groupValue = 0;
 
-  final List<Widget> _widgetOptions = <Widget>[
-    EntryFormPage(),
-    EntryOvertimePage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> widgetOptions = <Widget>[
+      EntryFormPage(
+        passedEnd: widget.passedEnd,
+        passedStart: widget.passedStart,
+      ),
+      EntryOvertimePage(
+        passedDateTime: widget.passedStart,
+      ),
+    ];
+
     return Column(
       children: [
         Container(
@@ -32,9 +41,9 @@ class _FormPopUpState extends State<FormPopUp> {
                       groupValue = changeFromGroupValue!;
                     });
                   },
-                  children: const <int, Widget>{
-                    0: Text('Form'),
-                    1: Text('Overtime'),
+                  children: <int, Widget>{
+                    0: Text(AppLocalizations.of(context)!.time),
+                    1: Text(AppLocalizations.of(context)!.duration),
                   }),
             )
           ]),
@@ -42,7 +51,7 @@ class _FormPopUpState extends State<FormPopUp> {
         const SizedBox(
           height: 20,
         ),
-        _widgetOptions.elementAt(groupValue),
+        widgetOptions.elementAt(groupValue),
       ],
     );
   }

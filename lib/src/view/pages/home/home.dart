@@ -8,15 +8,17 @@ import 'package:timing/src/model/TimeEntry.dart';
 import 'package:timing/src/view/macros/BottomSheetTemplate.dart';
 import 'package:timing/src/view/macros/ContentView.dart';
 import 'package:timing/src/view/pages/settings/BaseSettings.dart';
-import 'package:timing/src/view/pages/settings/Intoduction.dart';
 import 'package:timing/src/view/pages/home/Add/FormPopUp.dart';
 import 'package:timing/src/view/pages/home/HoursThisWeek.dart';
 import 'package:timing/src/view/pages/home/MonthSelection.dart';
 import 'package:timing/src/view/pages/home/ListEntry/TimeEntriesList.dart';
 import 'package:timing/src/view/pages/home/QuickAdd/QuickAddEntryColored.dart';
 import 'package:timing/src/view/pages/home/TotalOvertime.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TimeTrackingListPage extends StatefulWidget {
+  const TimeTrackingListPage({super.key});
+
   @override
   _TimeTrackingListPageState createState() => _TimeTrackingListPageState();
 }
@@ -40,14 +42,14 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
         width: MediaQuery.of(context).size.width * 0.8,
         child: CupertinoPopupSurface(
           child: Container(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               color: CupertinoColors.systemGrey,
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Text(
               message,
-              style: TextStyle(color: CupertinoColors.white),
+              style: const TextStyle(color: CupertinoColors.white),
               textAlign: TextAlign.center,
             ),
           ),
@@ -81,7 +83,7 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
     List<Month> months = TimeTrackingEntry.getMonthsOfYear(DateTime.now().year);
 
     return loading
-        ? CupertinoPageScaffold(child: CupertinoActivityIndicator())
+        ? const CupertinoPageScaffold(child: CupertinoActivityIndicator())
         : Scaffold(
             backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
             body: SafeArea(
@@ -93,7 +95,7 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                       GestureDetector(
                           child: Container(padding: const EdgeInsets.all(10), child: const Icon(CupertinoIcons.settings)),
                           onTap: () {
-                            showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetWidget(child: BaseSettings()));
+                            showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => const BottomSheetWidget(child: BaseSettings()));
                           })
                     ],
                   ),
@@ -131,11 +133,11 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                                     showCupertinoModalPopup(
                                       useRootNavigator: true,
                                       context: context,
-                                      builder: (context) => BottomSheetWidget(child: FormPopUp()),
+                                      builder: (context) => const BottomSheetWidget(child: FormPopUp()),
                                     );
                                     return;
                                   }
-                                  _showCupertinoSnackBar('One entry is already running. Please stop it first.');
+                                  _showCupertinoSnackBar(AppLocalizations.of(context)!.isRunningInfo);
                                 },
                               ),
                             ],

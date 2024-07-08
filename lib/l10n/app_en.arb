@@ -1,0 +1,45 @@
+{
+    "appName": "",
+    "overTimeWidget": "Overtime",
+    "hoursThisWeek": "Hours This Week",
+    "start": "Start",
+    "stop": "Stop",
+    "end": "End",
+    "save": "Done",
+    "breakStr": "Break",
+    "cancel": "Cancel",
+    "addOvertime": "Add Overtime",
+    "reduceOvertime": "Reduce Overtime",
+    "delete": "Delete",
+    "changeEntry": "Change Entry",
+    "newEntry": "Add Entry",
+    "started": "Started",
+
+    "date": "Date",
+    "duration": "Duration",
+    "time": "Time",
+    "errText1": "Quick adding is only possible if there are no other entries after the selected time",
+    "errText2": "Cannot be reduced to less than the daily working hours. Add a time entry with your working time. For example, if you work 8 hours a day, add a time entry with 4 hours. The remaining 4 hours will be considered as overtime.",
+    "errText3": "The date of a negative working day cannot be changed.",
+    "errText4": "There is already an entry on this date.",
+    "errText5": "The duration cannot be 0.",
+    "errText6": "The date of a negative working day cannot be changed.",
+    "errText7": "The end date cannot be before the start date.",
+    "errText8": "The minimum duration is 15 minutes",
+    "errText9": "The day already has negative overtime",
+    "errText10": "The entry overlaps with another entry.",
+    
+    "settings": "Settings",
+    "settingsBreakDuration": "Break Duration (Minutes)",
+    "settingsBreakAfter": "Break After (Hours)",
+    
+    "isRunningInfo": "One entry is already running. Please stop it first.",
+    "confirm": "Next",
+
+    "optionTimePerWeek": "Set number of hours per week (Mon - Fri)",
+    "optionTimePerDay": "Set working hours individually for each day",
+    "back": "Back",
+
+    "introFirstPageTitle" : "Please choose a setup option",
+    "introFirstPageText": "Choose how you would like to set your regular working hours"
+}

@@ -12,11 +12,13 @@ import 'package:timing/src/view/macros/ContextManager.dart';
 import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
 import 'package:timing/src/view/macros/DateTimePicker/Helper.dart';
 import 'package:timing/src/view/pages/home/Add/FormTemplate.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EntryOvertimePage extends StatefulWidget {
   final WorkDay? workDay;
+  final DateTime? passedDateTime;
 
-  const EntryOvertimePage({super.key, this.workDay});
+  const EntryOvertimePage({super.key, this.workDay, this.passedDateTime});
 
   @override
   State<EntryOvertimePage> createState() => _EntryOvertimePageState();
@@ -25,13 +27,14 @@ class EntryOvertimePage extends StatefulWidget {
 class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   Duration _controllerDuraion = Duration.zero;
-  DateTime _date = DateTime.now();
+  late DateTime _date;
   String? _errorText;
   int groupValue = 0;
 
   @override
   void initState() {
     super.initState();
+    _date = widget.passedDateTime ?? DateTime.now();
     _controller = AnimationController(vsync: this);
 
     if (widget.workDay != null) {
@@ -52,7 +55,7 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
     final settingsController = Provider.of<SettingsController>(context, listen: false);
 
     return FormLayout(
-      title: "Offset Overtime",
+      title: "",
       footer: Column(
         children: [
           Text(
@@ -68,7 +71,7 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
                 children: [
                   if (!(widget.workDay != null && widget.workDay!.minutes < 0))
                     CupertinoButton.filled(
-                      child: const Text("Save"),
+                      child: Text(AppLocalizations.of(context)!.save),
                       onPressed: () {
                         if (groupValue == 1) {
                           _controllerDuraion = settingsController.settings!.dailyWorkingHours[_date.weekday]!;
@@ -76,14 +79,16 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
 
                         if (_controllerDuraion.inMinutes == 0) {
                           setState(() {
-                            _errorText = "Duration cannot be 0";
+                            // _errorText = "Duration cannot be 0";
+                            _errorText = AppLocalizations.of(context)!.errText5;
                           });
                           return;
                         }
 
                         if (timeTrackingController.hasEntryOnDate(_date, null) && groupValue == 1) {
                           setState(() {
-                            _errorText = "There is already an entry on this date";
+                            // _errorText = "There is already an entry on this date";
+                            _errorText = AppLocalizations.of(context)!.errText4;
                           });
                           return;
                         }
@@ -103,7 +108,7 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
                   const SizedBox(height: 20),
                   if (widget.workDay != null)
                     CupertinoButton(
-                      child: const Text("Delete", style: TextStyle(color: CupertinoColors.destructiveRed)),
+                      child: Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: CupertinoColors.destructiveRed)),
                       onPressed: () {
                         timeTrackingController.deleteWorkDay(widget.workDay!);
                         Navigator.pop(context);
@@ -128,9 +133,9 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
                         groupValue = changeFromGroupValue!;
                       });
                     },
-                    children: const <int, Widget>{
-                      0: Text('Add'),
-                      1: Text('Rduce'),
+                    children: <int, Widget>{
+                      0: Text(AppLocalizations.of(context)!.addOvertime),
+                      1: Text(AppLocalizations.of(context)!.reduceOvertime),
                     }),
               )
           ]),
@@ -142,7 +147,7 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: Text("Date", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+              child: Text(AppLocalizations.of(context)!.date, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
             ),
             const Spacer(),
             Align(
@@ -151,7 +156,8 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
                 textWidget: Text(DateFormat.yMMMMd(Localizations.localeOf(context).toString()).format(_date)),
                 onPressed: () {
                   if (widget.workDay != null && widget.workDay!.minutes < 0) {
-                    ContextManager.showInfoPopup(context, "Cannot change date of a negative workday");
+                    // ContextManager.showInfoPopup(context, "Cannot change date of a negative workday");
+                    ContextManager.showInfoPopup(context, AppLocalizations.of(context)!.errText3);
                   } else {
                     FilterHelpers.showDateFilterWidgetPopUp(context, _date, (newDura) {
                       setState(() {
@@ -176,7 +182,7 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: Text("Duration", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+            child: Text(AppLocalizations.of(context)!.duration, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
           ),
           const Spacer(),
           Container(
@@ -190,7 +196,8 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
                 textWidget: Text(groupValue == 0 ? (_controllerDuraion.inMinutes / 60).toStringAsFixed(2) : settingsController.settings!.dailyWorkingHours[_date.weekday]!.formatDarationH2M()),
                 onPressed: () {
                   if (widget.workDay != null && widget.workDay!.minutes < 0) {
-                    ContextManager.showInfoPopup(context, "Cannot change date of a negative workday");
+                    // ContextManager.showInfoPopup(context, "Cannot change date of a negative workday");
+                    ContextManager.showInfoPopup(context, AppLocalizations.of(context)!.errText6);
                   } else {
                     groupValue == 0
                         ? FilterHelpers.showDurationFilterWidgetPopUp(context, _controllerDuraion, (Duration newDuration) {
@@ -198,8 +205,7 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
                               _controllerDuraion = newDuration;
                             });
                           })
-                        : ContextManager.showInfoPopup(context,
-                            "Cannot reduce to less than daily working hours. Add a Time Entry with your working time. E.g. if you work 8 hours a day, add a Time Entry with 4 hours. The remaining 4 hours will be considered as overtime.");
+                        : ContextManager.showInfoPopup(context, AppLocalizations.of(context)!.errText2);
                   }
                 },
               ),
