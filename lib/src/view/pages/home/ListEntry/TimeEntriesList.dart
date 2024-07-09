@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/TimeEntryController.dart';
-import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/model/TimeEntry.dart';
-import 'package:timing/src/view/pages/home/ListEntry/EntryTile.dart';
+import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/settingsController.dart';
+import 'package:work_log/src/model/TimeEntry.dart';
+import 'package:work_log/src/view/pages/home/ListEntry/EntryTile.dart';
 
 class TimeEntriesListWidget extends StatelessWidget {
   const TimeEntriesListWidget({Key? key}) : super(key: key);

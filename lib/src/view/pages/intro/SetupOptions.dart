@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/setupController.dart';
-import 'package:timing/src/view/pages/intro/SetupOption.dart';
+import 'package:work_log/src/controller/setupController.dart';
+import 'package:work_log/src/view/pages/intro/SetupOption.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SetupOptions extends StatelessWidget {

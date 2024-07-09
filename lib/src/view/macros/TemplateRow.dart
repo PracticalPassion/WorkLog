@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:timing/src/view/macros/BorderWithText.dart';
+import 'package:work_log/src/view/macros/BorderWithText.dart';
 
 class TemplateRow extends StatelessWidget {
   final String leftName;

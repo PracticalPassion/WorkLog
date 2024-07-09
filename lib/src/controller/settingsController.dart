@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:timing/src/model/UserSettings.dart';
+import 'package:work_log/src/model/UserSettings.dart';
 
 class SettingsController extends ChangeNotifier {
   UserSettings? _settings;

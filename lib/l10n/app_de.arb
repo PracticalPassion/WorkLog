@@ -5,6 +5,7 @@
     "start": "Start",
     "stop": "Stop",
     "end": "Ende",
+    "done": "Fertig",
     "save": "Fertig",
     "breakStr": "Pause",
     "cancel": "Abbrechen",
@@ -37,7 +38,8 @@
     "isRunningInfo": "Ein Eintrag läuft bereits. Bitte stoppen Sie diesen zuerst.",
     "next": "Weiter",
 
-    "optionTimePerWeek": "Setze anzahl an Stunden pro Woche (Mo - Fr.)",
+    "optionTimePerWeek": "Setze anzahl an Stunden pro Woche (Mo - Fr)",
+    "workWeekRange": "Mo - Fr",
     "optionTimePerDay": "Stelle Arbeitszeit für jeden tag individuell ein",
     "back": "Zurück",
 

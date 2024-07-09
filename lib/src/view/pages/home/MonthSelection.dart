@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:timing/src/view/macros/VertivalSelection.dart';
+import 'package:work_log/src/view/macros/VertivalSelection.dart';
 
 class MonthSelectionWidget extends StatelessWidget {
   final List<String> months;

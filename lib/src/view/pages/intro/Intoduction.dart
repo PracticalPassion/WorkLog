@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/setupController.dart';
-import 'package:timing/src/view/pages/home/home.dart';
-import 'package:timing/src/view/pages/settings/TimeSheetSettingsWidget.dart';
+import 'package:work_log/src/controller/setupController.dart';
+import 'package:work_log/src/view/pages/home/home.dart';
+import 'package:work_log/src/view/pages/settings/TimeSheetSettingsWidget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class IntroductionPage extends StatefulWidget {
@@ -45,7 +45,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
     return Consumer<SetupModel>(builder: (context, setupModel, child) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          backgroundColor: CupertinoColors.systemGroupedBackground.resolveFrom(context),
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           leading: CupertinoNavigationBarBackButton(
             previousPageTitle: AppLocalizations.of(context)!.back,
             onPressed: () {
@@ -53,7 +53,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
             },
           ),
         ),
-        backgroundColor: CupertinoColors.systemGroupedBackground.resolveFrom(context),
+        // backgroundColor: CupertinoColors.systemGroupedBackground.resolveFrom(context),
         child: SafeArea(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),

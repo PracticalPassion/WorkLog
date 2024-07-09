@@ -2,12 +2,12 @@ import 'dart:core';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/TimeEntryController.dart';
-import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/controller/setupController.dart';
-import 'package:timing/src/model/database/database.dart';
-import 'package:timing/src/view/pages/intro/FirstIntro.dart';
-import 'package:timing/src/view/pages/home/home.dart';
+import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/settingsController.dart';
+import 'package:work_log/src/controller/setupController.dart';
+import 'package:work_log/src/model/database/database.dart';
+import 'package:work_log/src/view/pages/intro/FirstIntro.dart';
+import 'package:work_log/src/view/pages/home/home.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -39,7 +39,7 @@ class App extends StatelessWidget {
           Locale('de', 'DE'),
         ],
         debugShowCheckedModeBanner: false,
-        title: 'Time Tracking App',
+        title: 'Work Log',
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -48,7 +48,7 @@ class App extends StatelessWidget {
         ],
         theme: getLightTheme(),
         navigatorKey: navigatorKey,
-        home: TimeTrackingApp(),
+        home: const TimeTrackingApp(),
       );
     } on Exception catch (_) {
       throw UnimplementedError();
@@ -61,18 +61,22 @@ class App extends StatelessWidget {
       textTheme: getTextTheme(),
       primaryColor: const Color.fromARGB(255, 61, 140, 90),
       primaryContrastingColor: CupertinoColors.white,
-      scaffoldBackgroundColor: Color.fromARGB(255, 214, 225, 217),
-      barBackgroundColor: CupertinoColors.systemBlue,
+      scaffoldBackgroundColor: const Color.fromARGB(255, 214, 225, 217),
+      barBackgroundColor: const Color.fromARGB(255, 189, 191, 189),
       applyThemeToAll: true,
     );
   }
 
   CupertinoTextThemeData getTextTheme() {
-    return CupertinoTextThemeData(textStyle: CupertinoTextThemeData().textStyle.copyWith(fontSize: 16, color: CupertinoColors.black));
+    return CupertinoTextThemeData(
+      textStyle: const CupertinoTextThemeData().textStyle.copyWith(color: CupertinoColors.black, fontSize: 15),
+    );
   }
 }
 
 class TimeTrackingApp extends StatefulWidget {
+  const TimeTrackingApp({super.key});
+
   @override
   _TimeTrackingAppState createState() => _TimeTrackingAppState();
 }
@@ -98,9 +102,9 @@ class _TimeTrackingAppState extends State<TimeTrackingApp> {
   @override
   Widget build(BuildContext context) {
     return loading
-        ? CupertinoActivityIndicator()
+        ? const CupertinoActivityIndicator()
         : settingsController.settings == null
             ? FirstPage()
-            : TimeTrackingListPage();
+            : const TimeTrackingListPage();
   }
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/model/Month.dart';
-import 'package:timing/src/model/TimeEntry.dart';
-import 'package:timing/src/model/UserSettings.dart';
-import 'package:timing/src/model/WorkDay.dart';
-import 'package:timing/src/model/database/database.dart';
-import 'package:timing/src/view/Helper/Extentions/DateTimeExtention.dart';
+import 'package:work_log/src/controller/settingsController.dart';
+import 'package:work_log/src/model/Month.dart';
+import 'package:work_log/src/model/TimeEntry.dart';
+import 'package:work_log/src/model/UserSettings.dart';
+import 'package:work_log/src/model/WorkDay.dart';
+import 'package:work_log/src/model/database/database.dart';
+import 'package:work_log/src/view/Helper/Extentions/DateTimeExtention.dart';
 
 class TimeTrackingController extends ChangeNotifier {
   List<TimeTrackingEntry> _entries = [];

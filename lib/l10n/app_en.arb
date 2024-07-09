@@ -6,6 +6,7 @@
     "stop": "Stop",
     "end": "End",
     "save": "Done",
+    "done": "Done",
     "breakStr": "Break",
     "cancel": "Cancel",
     "addOvertime": "Add Overtime",
@@ -37,6 +38,7 @@
     "confirm": "Next",
 
     "optionTimePerWeek": "Set number of hours per week (Mon - Fri)",
+    "workWeekRange": "Mon - Fri",
     "optionTimePerDay": "Set working hours individually for each day",
     "back": "Back",
 

@@ -1,8 +1,8 @@
 // filter_helpers.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:timing/src/view/Helper/Utils.dart';
-import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
+import 'package:work_log/src/view/Helper/Utils.dart';
+import 'package:work_log/src/view/macros/DateTimePicker/DateTimePicker.dart';
 
 class FilterHelpers {
   static void showDurationFilterWidgetPopUp(BuildContext context, Duration duration, Function(Duration) onPressed) {

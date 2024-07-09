@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:timing/src/view/pages/intro/SetupOptions.dart';
-import 'package:timing/src/view/pages/intro/Intoduction.dart';
+import 'package:work_log/src/view/pages/intro/SetupOptions.dart';
+import 'package:work_log/src/view/pages/intro/Intoduction.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FirstPage extends StatelessWidget {

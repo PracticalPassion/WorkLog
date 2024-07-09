@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:timing/src/view/macros/ContentView.dart';
-import 'package:timing/src/view/pages/home/InfoTile.dart';
+import 'package:work_log/src/view/macros/ContentView.dart';
+import 'package:work_log/src/view/pages/home/InfoTile.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TotalOvertimeWidget extends StatelessWidget {

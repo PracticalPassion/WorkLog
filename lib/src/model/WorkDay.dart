@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:timing/src/controller/TimeEntryController.dart';
-import 'package:timing/src/view/macros/BottomSheetTemplate.dart';
-import 'package:timing/src/view/macros/ContextManager.dart';
-import 'package:timing/src/view/pages/home/Add/Overtime.dart';
+import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/view/macros/BottomSheetTemplate.dart';
+import 'package:work_log/src/view/macros/ContextManager.dart';
+import 'package:work_log/src/view/pages/home/Add/Overtime.dart';
 
 enum WorkDayType {
   workday,

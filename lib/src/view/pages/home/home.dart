@@ -1,19 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/TimeEntryController.dart';
-import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/model/Month.dart';
-import 'package:timing/src/model/TimeEntry.dart';
-import 'package:timing/src/view/macros/BottomSheetTemplate.dart';
-import 'package:timing/src/view/macros/ContentView.dart';
-import 'package:timing/src/view/pages/settings/BaseSettings.dart';
-import 'package:timing/src/view/pages/home/Add/FormPopUp.dart';
-import 'package:timing/src/view/pages/home/HoursThisWeek.dart';
-import 'package:timing/src/view/pages/home/MonthSelection.dart';
-import 'package:timing/src/view/pages/home/ListEntry/TimeEntriesList.dart';
-import 'package:timing/src/view/pages/home/QuickAdd/QuickAddEntryColored.dart';
-import 'package:timing/src/view/pages/home/TotalOvertime.dart';
+import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/settingsController.dart';
+import 'package:work_log/src/model/Month.dart';
+import 'package:work_log/src/model/TimeEntry.dart';
+import 'package:work_log/src/view/macros/BottomSheetTemplate.dart';
+import 'package:work_log/src/view/macros/ContentView.dart';
+import 'package:work_log/src/view/macros/Snackbar.dart';
+import 'package:work_log/src/view/pages/settings/BaseSettings.dart';
+import 'package:work_log/src/view/pages/home/Add/FormPopUp.dart';
+import 'package:work_log/src/view/pages/home/HoursThisWeek.dart';
+import 'package:work_log/src/view/pages/home/MonthSelection.dart';
+import 'package:work_log/src/view/pages/home/ListEntry/TimeEntriesList.dart';
+import 'package:work_log/src/view/pages/home/QuickAdd/QuickAddEntryColored.dart';
+import 'package:work_log/src/view/pages/home/TotalOvertime.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TimeTrackingListPage extends StatefulWidget {
@@ -25,44 +27,12 @@ class TimeTrackingListPage extends StatefulWidget {
 
 class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
   bool loading = true;
+  final CupertinoSnackBar _snackBar = CupertinoSnackBar();
 
   @override
   void initState() {
     super.initState();
     _initializeData();
-  }
-
-  OverlayEntry? _overlayEntry;
-
-  void _showCupertinoSnackBar(String message) {
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 50.0,
-        left: MediaQuery.of(context).size.width * 0.1,
-        width: MediaQuery.of(context).size.width * 0.8,
-        child: CupertinoPopupSurface(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Text(
-              message,
-              style: const TextStyle(color: CupertinoColors.white),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    Overlay.of(context).insert(_overlayEntry!);
-
-    Future.delayed(const Duration(seconds: 3), () {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    });
   }
 
   Future<void> _initializeData() async {
@@ -92,6 +62,9 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      const SizedBox(width: 20),
+                      Text("Work Log", style: TextStyle(fontFamily: GoogleFonts.robotoMono().fontFamily, fontSize: 14, fontWeight: FontWeight.bold)),
+                      const Spacer(),
                       GestureDetector(
                           child: Container(padding: const EdgeInsets.all(10), child: const Icon(CupertinoIcons.settings)),
                           onTap: () {
@@ -137,7 +110,7 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                                     );
                                     return;
                                   }
-                                  _showCupertinoSnackBar(AppLocalizations.of(context)!.isRunningInfo);
+                                  _snackBar.show(context, AppLocalizations.of(context)!.isRunningInfo);
                                 },
                               ),
                             ],
@@ -151,7 +124,13 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                 ],
               ),
             ),
-            floatingActionButton: QuickAddEntryWidgetColored(),
+            floatingActionButton: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: CupertinoTheme.of(context).primaryColor,
+                  boxShadow: [BoxShadow(color: CupertinoColors.black.withOpacity(0.45), blurRadius: 12, offset: const Offset(0, 0))],
+                ),
+                child: QuickAddEntryWidgetColored()),
           );
   }
 }

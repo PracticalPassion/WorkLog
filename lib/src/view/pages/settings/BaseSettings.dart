@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/settingsController.dart';
+import 'package:work_log/src/controller/settingsController.dart';
 import 'package:intl/intl.dart';
-import 'package:timing/src/model/UserSettings.dart';
-import 'package:timing/src/view/pages/settings/TimeSheetSettingsWidget.dart';
+import 'package:work_log/src/model/UserSettings.dart';
+import 'package:work_log/src/view/pages/settings/TimeSheetSettingsWidget.dart';
 
 class BaseSettings extends StatefulWidget {
   const BaseSettings({super.key});

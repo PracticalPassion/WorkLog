@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/TimeEntryController.dart';
-import 'package:timing/src/view/Helper/Hero/HeroRoute.dart';
-import 'package:timing/src/view/macros/Button/ActivaStateButton.dart';
-import 'package:timing/src/view/pages/home/QuickAdd/QuickAddEntryForm.dart';
+import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/view/Helper/Hero/HeroRoute.dart';
+import 'package:work_log/src/view/macros/Button/ActivaStateButton.dart';
+import 'package:work_log/src/view/pages/home/QuickAdd/QuickAddEntryForm.dart';
 
 class QuickAddEntryWidgetColored extends StatefulWidget {
   @override

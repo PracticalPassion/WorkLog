@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/TimeEntryController.dart';
-import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/model/TimeEntry.dart';
-import 'package:timing/src/view/Helper/Extentions/DateTimeExtention.dart';
-import 'package:timing/src/view/Helper/Extentions/DurationExtention.dart';
-import 'package:timing/src/view/macros/BorderWithText.dart';
-import 'package:timing/src/view/macros/ContextManager.dart';
-import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
-import 'package:timing/src/view/macros/DateTimePicker/Helper.dart';
+import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/settingsController.dart';
+import 'package:work_log/src/model/TimeEntry.dart';
+import 'package:work_log/src/view/Helper/Extentions/DateTimeExtention.dart';
+import 'package:work_log/src/view/Helper/Extentions/DurationExtention.dart';
+import 'package:work_log/src/view/macros/BorderWithText.dart';
+import 'package:work_log/src/view/macros/ContextManager.dart';
+import 'package:work_log/src/view/macros/DateTimePicker/DateTimePicker.dart';
+import 'package:work_log/src/view/macros/DateTimePicker/Helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class QuickAddEntryForm extends StatefulWidget {

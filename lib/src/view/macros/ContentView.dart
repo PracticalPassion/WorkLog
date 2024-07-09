@@ -14,12 +14,12 @@ class ContentView extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: CupertinoColors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: CupertinoColors.black.withOpacity(0.05), width: 1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: CupertinoColors.black.withOpacity(0.05), width: .1),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.black.withOpacity(0.15),
-            blurRadius: 12,
+            color: CupertinoColors.black.withOpacity(0.25),
+            blurRadius: 8,
             offset: const Offset(0, 0),
           ),
         ],

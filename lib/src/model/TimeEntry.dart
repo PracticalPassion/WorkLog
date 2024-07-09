@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/model/Month.dart';
-import 'package:timing/src/model/WorkDay.dart';
-import 'package:timing/src/model/database/database.dart';
+import 'package:work_log/src/controller/settingsController.dart';
+import 'package:work_log/src/model/Month.dart';
+import 'package:work_log/src/model/WorkDay.dart';
+import 'package:work_log/src/model/database/database.dart';
 
 class TimeEntryTemplate {
   DateTime start;

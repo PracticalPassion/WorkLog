@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:timing/src/controller/settingsController.dart';
-import 'package:timing/src/model/UserSettings.dart';
-import 'package:timing/src/view/Helper/Extentions/DurationExtention.dart';
-import 'package:timing/src/view/Helper/Utils.dart';
-import 'package:timing/src/view/macros/DateTimePicker/DateTimePicker.dart';
-import 'package:timing/src/view/macros/Overlay.dart';
-import 'package:timing/src/view/macros/TemplateRow.dart';
-import 'package:timing/src/view/pages/home/Add/FormTemplate.dart';
+import 'package:work_log/src/controller/settingsController.dart';
+import 'package:work_log/src/model/UserSettings.dart';
+import 'package:work_log/src/view/Helper/Extentions/DurationExtention.dart';
+import 'package:work_log/src/view/Helper/Utils.dart';
+import 'package:work_log/src/view/macros/DateTimePicker/DateTimePicker.dart';
+import 'package:work_log/src/view/macros/Overlay.dart';
+import 'package:work_log/src/view/macros/TemplateRow.dart';
+import 'package:work_log/src/view/pages/home/Add/FormTemplate.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:timing/src/view/pages/settings/ButtonOverlay.dart';
+import 'package:work_log/src/view/pages/settings/ButtonOverlay.dart';
 
 class TimeSheetSettingsWidget extends StatefulWidget {
   final List<int> sortedWeekDays;
@@ -96,9 +96,9 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 20),
+        // const SizedBox(height: 90),
         widget.detailWidget ? detailDayWidget(context) : weekWidget(context),
-        FormLayout(showDividers: true, title: null, children: [
+        FormLayout(backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor, showDividers: true, title: null, children: [
           TemplateRow(
             leftName: (AppLocalizations.of(context)!.settingsBreakDuration),
             rightTextWidget: Text(widget.breakDurationMinutes.toString()),
@@ -135,6 +135,7 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
             },
           ),
         ),
+        const SizedBox(height: 90),
       ],
     );
   }
@@ -182,6 +183,7 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
 
   Widget detailDayWidget(context) {
     return FormLayout(
+      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       showDividers: true,
       title: AppLocalizations.of(context)!.settings,
       children: [
@@ -201,9 +203,9 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
   }
 
   Widget weekWidget(context) {
-    return FormLayout(showDividers: true, title: AppLocalizations.of(context)!.settings, children: [
+    return FormLayout(backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor, showDividers: true, title: AppLocalizations.of(context)!.settings, children: [
       TemplateRow(
-          leftName: "Mo -  Fri",
+          leftName: AppLocalizations.of(context)!.workWeekRange,
           replaceRightWidget: true,
           rightTextWidget: SizedBox(
             width: 60,
