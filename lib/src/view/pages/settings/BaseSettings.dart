@@ -4,6 +4,7 @@ import 'package:work_log/src/controller/settingsController.dart';
 import 'package:intl/intl.dart';
 import 'package:work_log/src/model/UserSettings.dart';
 import 'package:work_log/src/view/pages/settings/TimeSheetSettingsWidget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BaseSettings extends StatefulWidget {
   const BaseSettings({super.key});
@@ -44,19 +45,28 @@ class _BaseSettingsState extends State<BaseSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return TimeSheetSettingsWidget(
-      sortedWeekDays: sortedWeekDays,
-      dailyWorkingHours: dailyWorkingHours,
-      breakDurationMinutes: breakDurationMinutes,
-      breakAfterHours: breakAfterHours,
-      onSettingsChanged: (newDailyWorkingHours, newBreakDurationMinutes, newBreakAfterHours) {
-        setState(() {
-          dailyWorkingHours.addAll(newDailyWorkingHours);
-          breakDurationMinutes = newBreakDurationMinutes;
-          breakAfterHours = newBreakAfterHours;
-        });
-      },
-      afterSuccess: () => Navigator.pop(context),
-    );
+    return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+          middle: Text(AppLocalizations.of(context)!.worktime),
+        ),
+        child: SafeArea(
+            child: ListView(children: [
+          TimeSheetSettingsWidget(
+            showTitle: false,
+            sortedWeekDays: sortedWeekDays,
+            dailyWorkingHours: dailyWorkingHours,
+            breakDurationMinutes: breakDurationMinutes,
+            breakAfterHours: breakAfterHours,
+            onSettingsChanged: (newDailyWorkingHours, newBreakDurationMinutes, newBreakAfterHours) {
+              setState(() {
+                dailyWorkingHours.addAll(newDailyWorkingHours);
+                breakDurationMinutes = newBreakDurationMinutes;
+                breakAfterHours = newBreakAfterHours;
+              });
+            },
+            afterSuccess: () => Navigator.pop(context),
+          ),
+        ])));
   }
 }

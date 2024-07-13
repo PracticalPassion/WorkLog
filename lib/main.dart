@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/purchase/purchase.dart';
 import 'package:work_log/src/controller/settingsController.dart';
 import 'package:work_log/src/controller/setupController.dart';
 import 'package:work_log/src/model/database/database.dart';
@@ -13,10 +14,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Hive.initFlutter();
-  // await initApp();
-
   await DatabaseHelper().initDatabase();
+  await PurchaseApi.init();
 
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => SettingsController()),

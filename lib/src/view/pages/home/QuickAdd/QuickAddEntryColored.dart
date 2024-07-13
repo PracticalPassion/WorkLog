@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/purchase/purchase.dart';
 import 'package:work_log/src/view/Helper/Hero/HeroRoute.dart';
 import 'package:work_log/src/view/macros/Button/ActivaStateButton.dart';
 import 'package:work_log/src/view/pages/home/QuickAdd/QuickAddEntryForm.dart';
@@ -33,7 +33,12 @@ class _QuickAddEntryWidgetColoredState extends State<QuickAddEntryWidgetColored>
                 ),
               ],
             ),
-            onPressed: () {
+            onPressed: () async {
+              bool access = await PurchaseApi.accessGuaranteed(context);
+              if (!mounted) return; // Überprüfen, ob das Widget noch im Baum ist
+              if (!access) {
+                return;
+              }
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).push(
                   HeroDialogRoute(
@@ -46,14 +51,22 @@ class _QuickAddEntryWidgetColoredState extends State<QuickAddEntryWidgetColored>
             })
         : CupertinoButton.filled(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            onPressed: () {
-              Navigator.of(context).push(
-                HeroDialogRoute(
-                  builder: (context) => Center(
-                    child: QuickAddEntryForm(),
+            onPressed: () async {
+              bool access = await PurchaseApi.accessGuaranteed(context);
+              if (!mounted) return; // Überprüfen, ob das Widget noch im Baum ist
+
+              if (!access) {
+                return;
+              }
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).push(
+                  HeroDialogRoute(
+                    builder: (context) => Center(
+                      child: QuickAddEntryForm(),
+                    ),
                   ),
-                ),
-              );
+                );
+              });
             },
             child: const Row(
               mainAxisSize: MainAxisSize.min,

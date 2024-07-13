@@ -41,6 +41,14 @@ dependencies:
   sqflite: ^2.3.3+1
   google_fonts: ^6.2.1
   shared_preferences: ^2.2.3
+  in_app_purchase: ^3.2.0
+  in_app_purchase_storekit: ^0.3.17
+  in_app_purchase_android: ^0.3.6+1
+  purchases_flutter: ^6.30.1
+  package_info: ^2.0.2
+  url_launcher: ^6.3.0
+  mailto: ^2.0.0
+  package_info_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/purchase/AppData.dart';
+import 'package:work_log/src/controller/purchase/constant.dart';
+import 'package:work_log/src/controller/purchase/purchase.dart';
 import 'package:work_log/src/controller/settingsController.dart';
 import 'package:work_log/src/model/Month.dart';
 import 'package:work_log/src/model/TimeEntry.dart';
@@ -17,6 +21,7 @@ import 'package:work_log/src/view/pages/home/QuickAdd/QuickAddEntryColored.dart'
 import 'package:work_log/src/view/pages/home/TotalOvertime.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:work_log/src/view/pages/settings/settings.dart';
 
 class TimeTrackingListPage extends StatefulWidget {
   const TimeTrackingListPage({super.key});
@@ -40,6 +45,7 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
     final settingController = Provider.of<SettingsController>(context, listen: false);
     await settingController.loadUserSettings();
     await timeTrackingController.loadEntries();
+    await PurchaseApi.initPlatformState();
     setState(() {
       loading = false;
     });
@@ -63,12 +69,12 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       const SizedBox(width: 20),
-                      Text("Work Log", style: TextStyle(fontFamily: GoogleFonts.robotoMono().fontFamily, fontSize: 14, fontWeight: FontWeight.bold)),
                       const Spacer(),
                       GestureDetector(
                           child: Container(padding: const EdgeInsets.all(10), child: const Icon(CupertinoIcons.settings)),
                           onTap: () {
-                            showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => const BottomSheetWidget(child: BaseSettings()));
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => MainViewSettings()));
+                            // showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetWidget(child: MainViewSettings()));
                           })
                     ],
                   ),
@@ -101,16 +107,24 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                               const SizedBox(width: 10),
                               CupertinoButton(
                                 child: const Icon(CupertinoIcons.add),
-                                onPressed: () {
-                                  if (timeTrackingController.lastStartTime == null) {
-                                    showCupertinoModalPopup(
-                                      useRootNavigator: true,
-                                      context: context,
-                                      builder: (context) => const BottomSheetWidget(child: FormPopUp()),
-                                    );
+                                onPressed: () async {
+                                  bool access = await PurchaseApi.accessGuaranteed(context);
+                                  if (!mounted) return; // Überprüfen, ob das Widget noch im Baum ist
+                                  if (!access) {
                                     return;
                                   }
-                                  _snackBar.show(context, AppLocalizations.of(context)!.isRunningInfo);
+
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (timeTrackingController.lastStartTime == null) {
+                                      showCupertinoModalPopup(
+                                        useRootNavigator: true,
+                                        context: context,
+                                        builder: (context) => const BottomSheetWidget(child: FormPopUp()),
+                                      );
+                                      return;
+                                    }
+                                    _snackBar.show(context, AppLocalizations.of(context)!.isRunningInfo);
+                                  });
                                 },
                               ),
                             ],

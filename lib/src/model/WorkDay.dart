@@ -35,6 +35,8 @@ class WorkDay {
   }
 
   Widget getWidget(context) {
+    var textFontSize = CupertinoTheme.of(context).textTheme.textStyle.fontSize ?? 14;
+    textFontSize = textFontSize - 1;
     return GestureDetector(
       onTap: () {
         showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetWidget(child: EntryOvertimePage(workDay: this)));
@@ -49,16 +51,16 @@ class WorkDay {
               minutes > 0
                   ? const Icon(
                       CupertinoIcons.timelapse,
-                      size: 20,
+                      size: 17,
                     )
                   : const Icon(
                       CupertinoIcons.timelapse,
-                      size: 20,
+                      size: 17,
                       color: CupertinoColors.systemRed,
                     ),
               const SizedBox(width: 8),
               Text(minutes > 0 ? "${(minutes / 60).toStringAsFixed(2)} h" : "${((minutes * -1) / 60).toStringAsFixed(2)} h",
-                  style: const CupertinoTextThemeData().textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300)),
+                  style: const CupertinoTextThemeData().textStyle.copyWith(fontSize: textFontSize, fontWeight: FontWeight.w300)),
             ],
           )),
     );

@@ -36,13 +36,6 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
               Navigator.pop(context);
               return true;
             }
-            // } else if (notification.extent >= 0.55 && notification.extent < 0.9) {
-            //   _scrollController.animateTo(
-            //     0.9,
-            //     duration: const Duration(milliseconds: 300),
-            //     curve: Curves.easeOut,
-            //   );
-            // }
             return false;
           },
           child: Container(

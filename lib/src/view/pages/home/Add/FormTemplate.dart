@@ -25,9 +25,9 @@ class FormLayout extends StatelessWidget {
           Container(
             margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
             padding: const EdgeInsets.all(16.0),
-            decoration: const BoxDecoration(
-              color: CupertinoColors.white,
-              borderRadius: BorderRadius.all(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: const BorderRadius.all(
                 Radius.circular(15),
               ),
             ),

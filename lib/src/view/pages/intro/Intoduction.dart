@@ -57,39 +57,45 @@ class _IntroductionPageState extends State<IntroductionPage> {
         child: SafeArea(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: TimeSheetSettingsWidget(
-              sortedWeekDays: sortedWeekDays,
-              dailyWorkingHours: dailyWorkingHours,
-              breakDurationMinutes: breakDurationMinutes,
-              breakAfterHours: breakAfterHours,
-              onSettingsChanged: (newDailyWorkingHours, newBreakDurationMinutes, newBreakAfterHours) {
-                setState(() {
-                  // newDailyWorkingHours is a string
-                  if (newDailyWorkingHours is String) {
-                    final newMap = Map<int, Duration>.from(dailyWorkingHours);
-                    double hour = (double.parse(newDailyWorkingHours) / 5);
-                    int minutes = (hour * 60).toInt();
-                    final newDuration = Duration(minutes: (minutes));
-                    for (var key in newMap.keys) {
-                      if (key > 5) break;
-                      newMap[key] = newDuration;
-                    }
-                    dailyWorkingHours.addAll(newMap);
-                  } else {
-                    dailyWorkingHours.addAll(newDailyWorkingHours);
-                  }
-                  breakAfterHours = newBreakAfterHours;
-                  breakDurationMinutes = newBreakDurationMinutes;
-                });
-              },
-              detailWidget: setupModel.selectedSetup == 1,
-              afterSuccess: () {
-                dailyWorkingHours;
-                Navigator.pushReplacement(
-                  context,
-                  CupertinoPageRoute(builder: (context) => const TimeTrackingListPage()),
-                );
-              },
+            margin: const EdgeInsets.only(top: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TimeSheetSettingsWidget(
+                    sortedWeekDays: sortedWeekDays,
+                    dailyWorkingHours: dailyWorkingHours,
+                    breakDurationMinutes: breakDurationMinutes,
+                    breakAfterHours: breakAfterHours,
+                    onSettingsChanged: (newDailyWorkingHours, newBreakDurationMinutes, newBreakAfterHours) {
+                      setState(() {
+                        // newDailyWorkingHours is a string
+                        if (newDailyWorkingHours is String) {
+                          final newMap = Map<int, Duration>.from(dailyWorkingHours);
+                          double hour = (double.parse(newDailyWorkingHours) / 5);
+                          int minutes = (hour * 60).toInt();
+                          final newDuration = Duration(minutes: (minutes));
+                          for (var key in newMap.keys) {
+                            if (key > 5) break;
+                            newMap[key] = newDuration;
+                          }
+                          dailyWorkingHours.addAll(newMap);
+                        } else {
+                          dailyWorkingHours.addAll(newDailyWorkingHours);
+                        }
+                        breakAfterHours = newBreakAfterHours;
+                        breakDurationMinutes = newBreakDurationMinutes;
+                      });
+                    },
+                    detailWidget: setupModel.selectedSetup == 1,
+                    afterSuccess: () {
+                      Navigator.pushReplacement(
+                        context,
+                        CupertinoPageRoute(builder: (context) => const TimeTrackingListPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

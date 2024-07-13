@@ -21,6 +21,7 @@ class TimeSheetSettingsWidget extends StatefulWidget {
   final Function afterSuccess;
   final Function(dynamic, int, Duration) onSettingsChanged;
   final bool detailWidget;
+  final bool showTitle;
 
   final Duration weekDuration = const Duration(hours: 40);
 
@@ -33,6 +34,7 @@ class TimeSheetSettingsWidget extends StatefulWidget {
     required this.onSettingsChanged,
     required this.afterSuccess,
     this.detailWidget = true,
+    this.showTitle = true,
   });
 
   @override
@@ -94,49 +96,56 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // const SizedBox(height: 90),
-        widget.detailWidget ? detailDayWidget(context) : weekWidget(context),
-        FormLayout(backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor, showDividers: true, title: null, children: [
-          TemplateRow(
-            leftName: (AppLocalizations.of(context)!.settingsBreakDuration),
-            rightTextWidget: Text(widget.breakDurationMinutes.toString()),
-            rightTextOnPressed: () {
-              showFilterMinuteWidget(context, Duration(minutes: widget.breakDurationMinutes), (time) {
-                widget.onSettingsChanged(widget.dailyWorkingHours, time.inMinutes, widget.breakAfterHours);
-              });
-            },
-          ),
-          TemplateRow(
-            leftName: (AppLocalizations.of(context)!.settingsBreaAfter),
-            rightTextWidget: Text(widget.breakAfterHours.formatDarationH2M()),
-            rightTextOnPressed: () {
-              showFilterWidget(context, widget.breakAfterHours, (time) {
-                widget.onSettingsChanged(widget.dailyWorkingHours, widget.breakDurationMinutes, time);
-              });
-            },
-          ),
-        ]),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 100),
-          child: CupertinoButton.filled(
-            child: Text(AppLocalizations.of(context)!.save),
-            onPressed: () async {
-              final settings = UserSettings(
-                dailyWorkingHours: widget.dailyWorkingHours,
-                breakDurationMinutes: widget.breakDurationMinutes,
-                breakAfterHours: widget.breakAfterHours,
-              );
-              final settingsController = Provider.of<SettingsController>(context, listen: false);
-              await settingsController.saveUserSettings(settings);
+    return Container(
+      margin: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          // const SizedBox(height: 90),
+          widget.detailWidget ? detailDayWidget(context) : weekWidget(context),
+          FormLayout(
+              // backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+              backgroundColor: CupertinoColors.systemGrey6,
+              showDividers: true,
+              title: null,
+              children: [
+                TemplateRow(
+                  leftName: (AppLocalizations.of(context)!.settingsBreakDuration),
+                  rightTextWidget: Text(widget.breakDurationMinutes.toString()),
+                  rightTextOnPressed: () {
+                    showFilterMinuteWidget(context, Duration(minutes: widget.breakDurationMinutes), (time) {
+                      widget.onSettingsChanged(widget.dailyWorkingHours, time.inMinutes, widget.breakAfterHours);
+                    });
+                  },
+                ),
+                TemplateRow(
+                  leftName: (AppLocalizations.of(context)!.settingsBreaAfter),
+                  rightTextWidget: Text(widget.breakAfterHours.formatDarationH2M()),
+                  rightTextOnPressed: () {
+                    showFilterWidget(context, widget.breakAfterHours, (time) {
+                      widget.onSettingsChanged(widget.dailyWorkingHours, widget.breakDurationMinutes, time);
+                    });
+                  },
+                ),
+              ]),
+          IntrinsicWidth(
+            child: CupertinoButton.filled(
+              child: Text(AppLocalizations.of(context)!.save),
+              onPressed: () async {
+                final settings = UserSettings(
+                  dailyWorkingHours: widget.dailyWorkingHours,
+                  breakDurationMinutes: widget.breakDurationMinutes,
+                  breakAfterHours: widget.breakAfterHours,
+                );
+                final settingsController = Provider.of<SettingsController>(context, listen: false);
+                await settingsController.saveUserSettings(settings);
 
-              widget.afterSuccess();
-            },
+                widget.afterSuccess();
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 90),
-      ],
+          const SizedBox(height: 90),
+        ],
+      ),
     );
   }
 
@@ -183,9 +192,9 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
 
   Widget detailDayWidget(context) {
     return FormLayout(
-      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      backgroundColor: CupertinoColors.systemGrey6,
       showDividers: true,
-      title: AppLocalizations.of(context)!.settings,
+      title: widget.showTitle ? AppLocalizations.of(context)!.settings : null,
       children: [
         ...widget.sortedWeekDays.map((day) {
           return TemplateRow(
@@ -203,7 +212,7 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
   }
 
   Widget weekWidget(context) {
-    return FormLayout(backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor, showDividers: true, title: AppLocalizations.of(context)!.settings, children: [
+    return FormLayout(backgroundColor: CupertinoColors.systemGrey6, showDividers: true, title: AppLocalizations.of(context)!.settings, children: [
       TemplateRow(
           leftName: AppLocalizations.of(context)!.workWeekRange,
           replaceRightWidget: true,
