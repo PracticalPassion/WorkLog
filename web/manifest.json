@@ -1,6 +1,6 @@
 {
-    "name": "timing",
-    "short_name": "timing",
+    "name": "WorkTrackPro",
+    "short_name": "WorkTrackPro",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

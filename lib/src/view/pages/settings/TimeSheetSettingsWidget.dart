@@ -118,7 +118,7 @@ class _TimeSheetSettingsWidgetState extends State<TimeSheetSettingsWidget> {
                   },
                 ),
                 TemplateRow(
-                  leftName: (AppLocalizations.of(context)!.settingsBreaAfter),
+                  leftName: (AppLocalizations.of(context)!.settingsBreakAfter),
                   rightTextWidget: Text(widget.breakAfterHours.formatDarationH2M()),
                   rightTextOnPressed: () {
                     showFilterWidget(context, widget.breakAfterHours, (time) {

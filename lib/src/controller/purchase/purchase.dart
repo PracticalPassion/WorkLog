@@ -116,7 +116,7 @@ class PurchaseApi {
         await prefs.setString(trialStartDateKey, trialStartDate.toIso8601String());
       } else {
         DateTime trialStartDate = DateTime.parse(trialStartDateString);
-        DateTime oneWeekLater = trialStartDate.add(const Duration(minutes: 1));
+        DateTime oneWeekLater = trialStartDate.add(daysTestPhase);
 
         if (DateTime.now().isAfter(oneWeekLater)) {
           showCupertinoDialog(
@@ -148,6 +148,24 @@ class PurchaseApi {
       }
     }
     return true;
+  }
+
+  static Future<int> getRemainingTestDays() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? trialStartDateString = prefs.getString(trialStartDateKey);
+
+    if (trialStartDateString == null) {
+      return daysTestPhase.inDays;
+    } else {
+      DateTime trialStartDate = DateTime.parse(trialStartDateString);
+      DateTime later = trialStartDate.add(daysTestPhase);
+
+      if (DateTime.now().isAfter(later)) {
+        return 0;
+      } else {
+        return later.difference(DateTime.now()).inDays;
+      }
+    }
   }
 
   static Future<void> initPlatformState() async {

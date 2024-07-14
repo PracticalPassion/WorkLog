@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
-import 'package:work_log/src/controller/purchase/purchase.dart';
+import 'package:work_log/src/controller/purchase.dart';
+
 import 'package:work_log/src/view/Helper/Hero/HeroRoute.dart';
 import 'package:work_log/src/view/macros/Button/ActivaStateButton.dart';
 import 'package:work_log/src/view/pages/home/QuickAdd/QuickAddEntryForm.dart';
@@ -15,6 +16,7 @@ class _QuickAddEntryWidgetColoredState extends State<QuickAddEntryWidgetColored>
   @override
   Widget build(BuildContext context) {
     final timeTrackingController = Provider.of<TimeTrackingController>(context, listen: false);
+    final purchaseController = Provider.of<PurchaseController>(context);
 
     // AnimatedBuilder um die Animation zu verwenden
     return timeTrackingController.lastStartTime != null
@@ -33,40 +35,33 @@ class _QuickAddEntryWidgetColoredState extends State<QuickAddEntryWidgetColored>
                 ),
               ],
             ),
-            onPressed: () async {
-              bool access = await PurchaseApi.accessGuaranteed(context);
-              if (!mounted) return; // Überprüfen, ob das Widget noch im Baum ist
-              if (!access) {
+            onPressed: () {
+              if (!purchaseController.access(context)) {
                 return;
               }
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).push(
-                  HeroDialogRoute(
-                    builder: (context) => Center(
-                      child: QuickAddEntryForm(),
-                    ),
+
+              Navigator.of(context).push(
+                HeroDialogRoute(
+                  builder: (context) => Center(
+                    child: QuickAddEntryForm(),
                   ),
-                );
-              });
+                ),
+              );
             })
         : CupertinoButton.filled(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            onPressed: () async {
-              bool access = await PurchaseApi.accessGuaranteed(context);
-              if (!mounted) return; // Überprüfen, ob das Widget noch im Baum ist
-
-              if (!access) {
+            onPressed: () {
+              if (!purchaseController.access(context)) {
                 return;
               }
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).push(
-                  HeroDialogRoute(
-                    builder: (context) => Center(
-                      child: QuickAddEntryForm(),
-                    ),
+
+              Navigator.of(context).push(
+                HeroDialogRoute(
+                  builder: (context) => Center(
+                    child: QuickAddEntryForm(),
                   ),
-                );
-              });
+                ),
+              );
             },
             child: const Row(
               mainAxisSize: MainAxisSize.min,

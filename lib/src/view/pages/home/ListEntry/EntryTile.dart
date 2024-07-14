@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/purchase.dart';
 import 'package:work_log/src/controller/purchase/purchase.dart';
 import 'package:work_log/src/controller/settingsController.dart';
 import 'package:work_log/src/model/TimeEntry.dart';
@@ -25,6 +26,7 @@ class _EntryTileState extends State<EntryTile> {
   final CupertinoSnackBar _snackBar = CupertinoSnackBar();
   @override
   Widget build(BuildContext context) {
+    final purchaseController = Provider.of<PurchaseController>(context);
     var textFontSize = CupertinoTheme.of(context).textTheme.textStyle.fontSize ?? 14;
     textFontSize = textFontSize - 1;
 
@@ -39,35 +41,34 @@ class _EntryTileState extends State<EntryTile> {
     List<TimeEntry> sortedEntries = List.from(widget.entry.timeEntries)..sort((a, b) => a.start.compareTo(b.start));
 
     return GestureDetector(
-      onTap: () async {
-        bool access = await PurchaseApi.accessGuaranteed(context);
-        if (!mounted) return; // Überprüfen, ob das Widget noch im Baum ist
-        if (!access) {
+      onTap: () {
+        if (!purchaseController.access(context)) {
           return;
         }
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (timeTrackingController.lastStartTime != null) {
-            _snackBar.show(context, AppLocalizations.of(context)!.isRunningInfo);
-            return;
-          }
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (timeTrackingController.lastStartTime != null) {
+          _snackBar.show(context, AppLocalizations.of(context)!.isRunningInfo);
+          return;
+        }
 
-          if (widget.entry.workDay == null && widget.entry.timeEntries.isEmpty) {
-            final DateTime startDate = widget.entry.date.copyWith(hour: 8);
-            final DateTime endDate =
-                widget.entry.date.copyWith(minute: startDate.hour * 60 + settingsController.getExpectedWorkHours(widget.entry.date).inMinutes + settingsController.settings!.breakDurationMinutes);
+        if (widget.entry.workDay == null && widget.entry.timeEntries.isEmpty) {
+          final DateTime startDate = widget.entry.date.copyWith(hour: 8);
+          final DateTime endDate =
+              widget.entry.date.copyWith(minute: startDate.hour * 60 + settingsController.getExpectedWorkHours(widget.entry.date).inMinutes + settingsController.settings!.breakDurationMinutes);
 
-            showCupertinoModalPopup(
-                useRootNavigator: true,
-                context: context,
-                builder: (context) => BottomSheetWidget(
-                        child: FormPopUp(
-                      passedStart: startDate,
-                      passedEnd: endDate,
-                      // title: AppLocalizations.of(context)!.newEntry,
-                    )));
-          }
-        });
+          showCupertinoModalPopup(
+              useRootNavigator: true,
+              context: context,
+              builder: (context) => BottomSheetWidget(
+                      child: FormPopUp(
+                    passedStart: startDate,
+                    passedEnd: endDate,
+                    // title: AppLocalizations.of(context)!.newEntry,
+                  )));
+        }
+        // }
+        // );
       },
       child: Container(
         decoration: const BoxDecoration(

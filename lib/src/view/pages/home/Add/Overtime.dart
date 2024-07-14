@@ -55,6 +55,7 @@ class _EntryOvertimePageState extends State<EntryOvertimePage> with SingleTicker
     final settingsController = Provider.of<SettingsController>(context, listen: false);
 
     return FormLayout(
+      backgroundColor: CupertinoColors.white,
       title: "",
       footer: Column(
         children: [

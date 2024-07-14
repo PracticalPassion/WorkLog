@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/purchase.dart';
 import 'package:work_log/src/controller/purchase/AppData.dart';
 import 'package:work_log/src/controller/purchase/constant.dart';
 import 'package:work_log/src/controller/purchase/purchase.dart';
@@ -54,6 +55,8 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
   @override
   Widget build(BuildContext context) {
     final timeTrackingController = Provider.of<TimeTrackingController>(context);
+    final purchaseController = Provider.of<PurchaseController>(context);
+
     final weeklyHours = TimeTrackingEntry.calculateWeeklyHours(timeTrackingController.entries);
 
     List<Month> months = TimeTrackingEntry.getMonthsOfYear(DateTime.now().year);
@@ -107,24 +110,20 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                               const SizedBox(width: 10),
                               CupertinoButton(
                                 child: const Icon(CupertinoIcons.add),
-                                onPressed: () async {
-                                  bool access = await PurchaseApi.accessGuaranteed(context);
-                                  if (!mounted) return; // Überprüfen, ob das Widget noch im Baum ist
-                                  if (!access) {
+                                onPressed: () {
+                                  if (!purchaseController.access(context)) {
                                     return;
                                   }
 
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    if (timeTrackingController.lastStartTime == null) {
-                                      showCupertinoModalPopup(
-                                        useRootNavigator: true,
-                                        context: context,
-                                        builder: (context) => const BottomSheetWidget(child: FormPopUp()),
-                                      );
-                                      return;
-                                    }
-                                    _snackBar.show(context, AppLocalizations.of(context)!.isRunningInfo);
-                                  });
+                                  if (timeTrackingController.lastStartTime == null) {
+                                    showCupertinoModalPopup(
+                                      useRootNavigator: true,
+                                      context: context,
+                                      builder: (context) => const BottomSheetWidget(child: FormPopUp()),
+                                    );
+                                    return;
+                                  }
+                                  _snackBar.show(context, AppLocalizations.of(context)!.isRunningInfo);
                                 },
                               ),
                             ],

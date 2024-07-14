@@ -18,6 +18,20 @@ class MainViewSettings extends StatefulWidget {
 }
 
 class _MainViewSettingsState extends State<MainViewSettings> {
+  String remainingDays = "";
+
+  @override
+  void initState() {
+    super.initState();
+    if (appData.plan == Plan.test) {
+      PurchaseApi.getRemainingTestDays().then((value) {
+        setState(() {
+          remainingDays = " with remaining Days: $value";
+        });
+      });
+    }
+  }
+
   List<TileStrcut> listTiles_personal(BuildContext context) {
     return [
       TileStrcut(
@@ -42,7 +56,7 @@ class _MainViewSettingsState extends State<MainViewSettings> {
 
   List<TileInfo> listTiles_purchases(BuildContext context) {
     return [
-      TileInfo(title: "${AppLocalizations.of(context)!.currentPlan}: ${appData.plan.prettyName}", icon: CupertinoIcons.info, onPressed: () => PurchaseApi.perfomMagic(context)),
+      TileInfo(title: "${AppLocalizations.of(context)!.currentPlan}: ${appData.plan.prettyName}$remainingDays", icon: CupertinoIcons.info, onPressed: () => PurchaseApi.perfomMagic(context)),
       TileInfo(title: AppLocalizations.of(context)!.restorePurchases, onPressed: () => PurchaseApi.restorePurchases(context), icon: CupertinoIcons.lasso),
     ];
   }
@@ -83,7 +97,7 @@ class _MainViewSettingsState extends State<MainViewSettings> {
                   const SizedBox(
                     height: 10,
                   ),
-                  listView(listTiles_purchases(context)),
+                  listView(listTiles_purchases(context), withDividers: true),
                   const SizedBox(
                     height: 60,
                   ),
@@ -94,22 +108,32 @@ class _MainViewSettingsState extends State<MainViewSettings> {
         ));
   }
 
-  Widget listView(List<TileBase> tiles) => ListView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: tiles.length,
-      itemBuilder: (context, index) {
-        return tiles[index].getWidget(
-            tiles.length == 1
-                ? BorderType.all
-                : index == 0
-                    ? BorderType.top
-                    : index == tiles.length - 1
-                        ? BorderType.bottom
-                        : BorderType.none,
-            context);
-      });
+  Widget listView(List<TileBase> tiles, {bool withDividers = false}) => ListView.builder(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: withDividers ? tiles.length * 2 - 1 : tiles.length, // adjust item count for dividers
+        itemBuilder: (context, index) {
+          if (withDividers && index.isOdd) {
+            // Return a Divider for odd indices if withDividers is true
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              child: const Divider(height: 0, color: CupertinoColors.systemGrey4),
+            );
+          }
+          // Return the actual widget for even indices or if withDividers is false
+          final tileIndex = withDividers ? index ~/ 2 : index;
+          return tiles[tileIndex].getWidget(
+              tiles.length == 1
+                  ? BorderType.all
+                  : tileIndex == 0
+                      ? BorderType.top
+                      : tileIndex == tiles.length - 1
+                          ? BorderType.bottom
+                          : BorderType.none,
+              context);
+        },
+      );
 }
 
 abstract class TileBase {
@@ -188,27 +212,17 @@ class TileInfo extends TileBase {
           borderRadius: borderType.borderRadius,
         ),
         padding: const EdgeInsets.all(10),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  // Icon(icon),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Text(title,
-                      style: const CupertinoTextThemeData().navTitleTextStyle.copyWith(
-                            fontWeight: FontWeight.normal,
-                            color: CupertinoColors.systemBlue,
-                            fontFamily: GoogleFonts.robotoMono().fontFamily,
-                            fontSize: 15,
-                          )),
-                ],
-              ),
-            ),
-          ],
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(title,
+              overflow: TextOverflow.visible,
+              maxLines: 2,
+              style: const CupertinoTextThemeData().navTitleTextStyle.copyWith(
+                    fontWeight: FontWeight.normal,
+                    color: CupertinoColors.systemBlue,
+                    fontFamily: GoogleFonts.robotoMono().fontFamily,
+                    fontSize: 15,
+                  )),
         ),
       ),
     );

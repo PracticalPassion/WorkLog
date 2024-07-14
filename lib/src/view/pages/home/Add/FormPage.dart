@@ -117,6 +117,7 @@ class _EntryFormPageState extends State<EntryFormPage> {
     final settingsController = Provider.of<SettingsController>(context);
 
     return FormLayout(
+      backgroundColor: CupertinoColors.white,
       title: widget.title ?? (widget.entry != null ? AppLocalizations.of(context)!.changeEntry : ""),
       footer: Column(
         children: [

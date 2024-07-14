@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
+import 'package:work_log/src/controller/purchase.dart';
 import 'package:work_log/src/controller/purchase/purchase.dart';
 import 'package:work_log/src/controller/settingsController.dart';
 import 'package:work_log/src/controller/setupController.dart';
@@ -21,6 +22,7 @@ void main() async {
     ChangeNotifierProvider(create: (_) => SettingsController()),
     ChangeNotifierProvider(create: (_) => TimeTrackingController()),
     ChangeNotifierProvider(create: (_) => SetupModel()),
+    ChangeNotifierProvider(create: (_) => PurchaseController()),
   ], child: const App()));
 }
 
@@ -38,7 +40,7 @@ class App extends StatelessWidget {
           Locale('de', 'DE'),
         ],
         debugShowCheckedModeBanner: false,
-        title: 'Work Log',
+        title: 'WorkTrack Pro',
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -96,6 +98,8 @@ class _TimeTrackingAppState extends State<TimeTrackingApp> {
     super.initState();
     initializeDateFormatting();
     loadSettings();
+    final purchseController = Provider.of<PurchaseController>(context, listen: false);
+    purchseController.updateStatus(context);
   }
 
   @override
