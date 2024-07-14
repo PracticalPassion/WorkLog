@@ -23,11 +23,19 @@ class _MainViewSettingsState extends State<MainViewSettings> {
   @override
   void initState() {
     super.initState();
+    setPlanText();
+  }
+
+  void setPlanText() {
     if (appData.plan == Plan.test) {
       PurchaseApi.getRemainingTestDays().then((value) {
         setState(() {
           remainingDays = " with remaining Days: $value";
         });
+      });
+    } else {
+      setState(() {
+        remainingDays = "";
       });
     }
   }
@@ -56,8 +64,18 @@ class _MainViewSettingsState extends State<MainViewSettings> {
 
   List<TileInfo> listTiles_purchases(BuildContext context) {
     return [
-      TileInfo(title: "${AppLocalizations.of(context)!.currentPlan}: ${appData.plan.prettyName}$remainingDays", icon: CupertinoIcons.info, onPressed: () => PurchaseApi.perfomMagic(context)),
-      TileInfo(title: AppLocalizations.of(context)!.restorePurchases, onPressed: () => PurchaseApi.restorePurchases(context), icon: CupertinoIcons.lasso),
+      TileInfo(
+          title: "${AppLocalizations.of(context)!.currentPlan}: ${appData.plan.prettyName}$remainingDays",
+          icon: CupertinoIcons.info,
+          onPressed: () => PurchaseApi.perfomMagic(context).then((v) {
+                setPlanText();
+              })),
+      TileInfo(
+          title: AppLocalizations.of(context)!.restorePurchases,
+          onPressed: () => PurchaseApi.restorePurchases(context).then((value) {
+                setPlanText();
+              }),
+          icon: CupertinoIcons.lasso),
     ];
   }
 
@@ -203,18 +221,21 @@ class TileInfo extends TileBase {
         this.icon = icon;
 
   @override
-  Widget getWidget(BorderType borderType, BuildContext context) {
-    return GestureDetector(
-      onTap: () => onPressed(),
-      child: Container(
-        decoration: BoxDecoration(
-          color: CupertinoColors.systemGrey6,
-          borderRadius: borderType.borderRadius,
-        ),
-        padding: const EdgeInsets.all(10),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(title,
+  Widget getWidget(BorderType borderType, BuildContext context) => CupertinoButton(
+        borderRadius: BorderRadius.zero,
+        minSize: 0,
+        onPressed: () => onPressed(),
+        padding: EdgeInsets.zero,
+        child: Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemGrey6,
+            borderRadius: borderType.borderRadius,
+          ),
+          padding: const EdgeInsets.all(10),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              title,
               overflow: TextOverflow.visible,
               maxLines: 2,
               style: const CupertinoTextThemeData().navTitleTextStyle.copyWith(
@@ -222,9 +243,9 @@ class TileInfo extends TileBase {
                     color: CupertinoColors.systemBlue,
                     fontFamily: GoogleFonts.robotoMono().fontFamily,
                     fontSize: 15,
-                  )),
+                  ),
+            ),
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
