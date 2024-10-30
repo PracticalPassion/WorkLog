@@ -1,16 +1,18 @@
-# worklogpro
+## Work track Pro
 
-A new Flutter project.
 
-## Getting Started
+With this time tracking app, you always have an overview of your working hours. 
+Record your hours easily and efficiently with your smartphone. Ideal for people in trust-based working time or for personal use. 
 
-This project is a starting point for a Flutter application.
+### Preview
 
-A few resources to get you started if this is your first Flutter project:
+![image](assets/images/all.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Build
+
+1. Install Flutter
+2. Clone the repository
+3. Run `flutter pub get`
+4. Run `flutter run`
+
