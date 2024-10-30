@@ -1,4 +1,4 @@
-# worktrackpro
+# worklogpro
 
 A new Flutter project.
 

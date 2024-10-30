@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:work_log/src/controller/purchase/AppData.dart';
 import 'package:work_log/src/controller/purchase/constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -73,12 +75,45 @@ class _PaywallState extends State<Paywall> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 32, bottom: 16, left: 16.0, right: 16.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: Text(
-                  footerText,
-                  style: const CupertinoTextThemeData().textStyle.copyWith(fontSize: 10.0),
-                ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    // width: double.infinity,
+                    child: Text.rich(
+                      TextSpan(
+                        text: footerText,
+                        style: const CupertinoTextThemeData().textStyle.copyWith(fontSize: 11.0),
+                        children: [
+                          TextSpan(
+                            text: AppLocalizations.of(context)!.termsOfUse,
+                            style: const TextStyle(
+                              color: CupertinoColors.activeBlue,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'));
+                              },
+                          ),
+                          const TextSpan(text: ' '),
+                          TextSpan(text: AppLocalizations.of(context)!.and),
+                          const TextSpan(text: ' '),
+                          TextSpan(
+                            text: AppLocalizations.of(context)!.privacyPolicy,
+                            style: const TextStyle(
+                              color: CupertinoColors.activeBlue,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                launchUrl(Uri.parse('https://koljabohne.github.io/endurancepro.github.io/'));
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

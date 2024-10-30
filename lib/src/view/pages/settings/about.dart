@@ -2,9 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:sqflite/sqflite.dart';
 
 class AboutPage extends StatefulWidget {
+  const AboutPage({super.key});
+
   @override
   _AboutPageState createState() => _AboutPageState();
 }
@@ -44,25 +45,25 @@ class _AboutPageState extends State<AboutPage> {
             child: Column(
               children: [
                 Image.asset('assets/icon/icon.jpeg', height: 100),
-                SizedBox(height: 10),
-                Text(AppLocalizations.of(context)!.appName, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Text(AppLocalizations.of(context)!.appName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
-          Divider(),
+          const Divider(),
           CupertinoListTile(
             title: Text(AppLocalizations.of(context)!.version),
             subtitle: Text('${_packageInfo.version} (${_packageInfo.buildNumber})'),
           ),
-          Divider(),
+          const Divider(),
           CupertinoListTile(
             title: Text(AppLocalizations.of(context)!.about_app),
             subtitle: Text(AppLocalizations.of(context)!.this_app),
           ),
-          Divider(),
+          const Divider(),
           CupertinoListTile(
             title: Text(AppLocalizations.of(context)!.developed_by),
-            subtitle: Text('Kolja Bohne'),
+            subtitle: const Text('Kolja Bohne'),
           ),
         ],
       ),

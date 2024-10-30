@@ -7,6 +7,7 @@ import 'package:work_log/src/model/UserSettings.dart';
 import 'package:work_log/src/model/WorkDay.dart';
 import 'package:work_log/src/model/database/database.dart';
 import 'package:work_log/src/view/Helper/Extentions/DateTimeExtention.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TimeTrackingController extends ChangeNotifier {
   List<TimeTrackingEntry> _entries = [];
@@ -264,14 +265,14 @@ class TimeTrackingController extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? stopCurrentEntry(DateTime time, SettingsController settingsController, Duration pause) {
+  String? stopCurrentEntry(DateTime time, SettingsController settingsController, Duration pause, context) {
     assert(_lastStartTime != null);
     if (_lastStartTime == null) {
-      return 'No start time found';
+      return AppLocalizations.of(context)!.noStartTimeFound;
     }
 
     if (time.isBefore(_lastStartTime!)) {
-      return 'End time is before start time';
+      return AppLocalizations.of(context)!.endTimeBeforeStartTime;
     }
 
     final entry = TimeEntryTemplate(start: _lastStartTime!, end: time, pause: pause);

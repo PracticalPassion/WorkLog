@@ -194,16 +194,28 @@ class TimeTrackingEntry {
 
   static double calculateWeeklyHours(List<TimeTrackingEntry> entries) {
     final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday - 1));
-    final weekEnd = now.add(Duration(days: DateTime.daysPerWeek - now.weekday));
+    final weekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
+    final weekEnd = weekStart.add(const Duration(days: 7)).subtract(const Duration(seconds: 1));
 
     double weeklyHours = 0.0;
     for (var entry in entries) {
-      if (entry.timeEntries.any((te) => te.start.isAfter(weekStart) && te.start.isBefore(weekEnd))) {
-        final workDuration = entry.netDuration;
-        final workHours = workDuration.inHours;
-        final workMinutes = workDuration.inMinutes % 60;
-        weeklyHours += workHours + workMinutes / 60;
+      for (var te in entry.timeEntries) {
+        if (te.start.isAfter(weekStart) && te.start.isBefore(weekEnd)) {
+          Duration workDuration = te.end.difference(te.start);
+          if (te.pause != null) {
+            workDuration -= te.pause!;
+          }
+          final workHours = workDuration.inHours;
+          final workMinutes = workDuration.inMinutes % 60;
+          weeklyHours += workHours + workMinutes / 60.0;
+        }
+      }
+
+      if (entry.workDay != null && entry.workDay!.date.isAfter(weekStart) && entry.workDay!.date.isBefore(weekEnd)) {
+        final workDayDuration = entry.workDay!.getDuration();
+        final workDayHours = workDayDuration.inHours;
+        final workDayMinutes = workDayDuration.inMinutes % 60;
+        weeklyHours += workDayHours + workDayMinutes / 60.0;
       }
     }
     return weeklyHours;
@@ -212,11 +224,13 @@ class TimeTrackingEntry {
   static List<DateTime> getDaysInMonth(Month month) {
     final now = DateTime.now();
     List<DateTime> days = [];
-    DateTime date = DateTime(month.year, month.month, 1);
+
+    DateTime date = DateTime(month.year, month.month, 1, 12);
     while (date.month == month.month && date.isBefore(now)) {
       days.add(date);
-      date = date.add(const Duration(days: 1));
+      date = date.add(const Duration(days: 1)).copyWith(hour: 12);
     }
+
     days.sort((a, b) => b.compareTo(a));
     return days;
   }

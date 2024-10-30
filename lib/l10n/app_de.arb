@@ -1,5 +1,5 @@
 {
-    "appName": "WorkTrack Pro",
+    "appName": "WorkLog Pro",
     "overTimeWidget": "Überstunden",
     "hoursThisWeek": "Wochenstunden",
     "start": "Start",
@@ -78,5 +78,13 @@
     "currentPlan": "Aktueller Plan",
     "restoreSuccess": "Käufe konnten wiederhergestellt werden",
     "restoreFail": "Käufe konnten nicht wiederhergestellt werden",
-    "restorePurchases": "Käufe wiederherstellen"
+    "restorePurchases": "Käufe wiederherstellen",
+    "remainingDays": "mit {days} verbleibenden Tagen",
+    "privacyPolicy": "Datenschutz",
+    "termsOfUse": "Nutzungsbedingungen",
+    "and": "und",
+    "workTime": "Arbeitszeit",
+    "endTimeBeforeStartTime": "Endzeit liegt vor der Startzeit",
+"noStartTimeFound": "Keine Startzeit gefunden",
+"withoutBreak": "Ohne Pause"
 }

@@ -40,7 +40,7 @@ class App extends StatelessWidget {
           Locale('de', 'DE'),
         ],
         debugShowCheckedModeBanner: false,
-        title: 'WorkTrack Pro',
+        title: 'WorkLog Pro',
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -99,7 +99,7 @@ class _TimeTrackingAppState extends State<TimeTrackingApp> {
     initializeDateFormatting();
     loadSettings();
     final purchseController = Provider.of<PurchaseController>(context, listen: false);
-    purchseController.updateStatus(context);
+    purchseController.updateStatus(context, loadOnly: true);
   }
 
   @override

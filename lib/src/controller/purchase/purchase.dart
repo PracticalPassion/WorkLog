@@ -81,7 +81,7 @@ class PurchaseApi {
           );
         },
       );
-    } on PlatformException catch (e) {
+    } on PlatformException {
       // Error restoring purchases
       showCupertinoDialog(
         context: context,
@@ -104,7 +104,7 @@ class PurchaseApi {
     }
   }
 
-  static Future<bool> accessGuaranteed(context) async {
+  static Future<bool> accessGuaranteed(context, {bool loadOnly = false}) async {
     if (!appData.entitlementIsActive) {
       // Überprüfe, ob der Nutzer die App zum ersten Mal nutzt
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -119,30 +119,32 @@ class PurchaseApi {
         DateTime oneWeekLater = trialStartDate.add(daysTestPhase);
 
         if (DateTime.now().isAfter(oneWeekLater)) {
-          showCupertinoDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                title: Text(AppLocalizations.of(context)!.expiredTestTitle),
-                content: Text(AppLocalizations.of(context)!.expiredTestText),
-                actions: <Widget>[
-                  CupertinoDialogAction(
-                    child: Text(AppLocalizations.of(context)!.decline),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  CupertinoDialogAction(
-                    child: Text(AppLocalizations.of(context)!.yes),
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                      await perfomMagic(context);
-                    },
-                  ),
-                ],
-              );
-            },
-          );
+          if (!loadOnly) {
+            showCupertinoDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CupertinoAlertDialog(
+                  title: Text(AppLocalizations.of(context)!.expiredTestTitle),
+                  content: Text(AppLocalizations.of(context)!.expiredTestText),
+                  actions: <Widget>[
+                    CupertinoDialogAction(
+                      child: Text(AppLocalizations.of(context)!.decline),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    CupertinoDialogAction(
+                      child: Text(AppLocalizations.of(context)!.yes),
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await perfomMagic(context);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
           return false;
         }
       }

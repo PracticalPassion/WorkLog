@@ -12,6 +12,8 @@ import 'package:work_log/src/view/macros/DateTimePicker/Helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class QuickAddEntryForm extends StatefulWidget {
+  const QuickAddEntryForm({super.key});
+
   @override
   _QuickAddEntryFormState createState() => _QuickAddEntryFormState();
 }
@@ -33,11 +35,23 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
       _selectedDateTime = DateTimePicker5.rountTime(DateTime.now());
     } else {
       DateTime time = timeTrackingController.lastStartTime!;
-      _selectedDateTime = DateTimePicker5.rountTime(time.add(const Duration(minutes: 15)));
+      if (time.add(const Duration(minutes: 15)).isAfter(DateTime.now())) {
+        _selectedDateTime = DateTimePicker5.rountTime(time.add(const Duration(minutes: 15)));
+      } else {
+        _selectedDateTime = DateTimePicker5.rountTime(DateTime.now());
+      }
     }
   }
 
-  Duration getDuration(settingsController, TimeTrackingController timeTrackingController) {
+  Duration getBrakDurationFull(settingsController, timeTrackingController) {
+    if (_controller.text.isEmpty) {
+      return getBreakDuration(settingsController, timeTrackingController);
+    } else {
+      return Duration(minutes: int.parse(_controller.text));
+    }
+  }
+
+  Duration getBreakDuration(settingsController, TimeTrackingController timeTrackingController) {
     DateTime startTime = timeTrackingController.lastStartTime!;
 
     if (_selectedDateTime == null) {
@@ -47,6 +61,19 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
     return Duration(
         minutes: TimeEntryTemplate.calculateDesiredBreak(DateTime(startTime.year, startTime.month, startTime.day, startTime.hour, startTime.minute),
             DateTime(_selectedDateTime!.year, _selectedDateTime!.month, _selectedDateTime!.day, _selectedDateTime!.hour, _selectedDateTime!.minute), settingsController));
+  }
+
+  Duration getWorkTime(TimeTrackingController timeTrackingController, Duration breakDuration) {
+    DateTime startTime = timeTrackingController.lastStartTime!;
+
+    if (_selectedDateTime == null) {
+      return const Duration(minutes: 0);
+    }
+
+    startTime = DateTime(startTime.year, startTime.month, startTime.day, startTime.hour, startTime.minute);
+    DateTime endTime = DateTime(_selectedDateTime!.year, _selectedDateTime!.month, _selectedDateTime!.day, _selectedDateTime!.hour, _selectedDateTime!.minute);
+
+    return endTime.difference(startTime) - breakDuration;
   }
 
   @override
@@ -67,7 +94,7 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
             timeTrackingController.lastStartTime == null
                 ? Text(
                     AppLocalizations.of(context)!.newEntry,
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 20),
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -100,37 +127,75 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                       color: CupertinoColors.white,
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: Row(
+                    // Break
+                    child: Column(
                       children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(AppLocalizations.of(context)!.breakStr, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
-                        ),
-                        const Spacer(),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: SizedBox(
-                            width: 50,
-                            child: BorderedWithText(
-                              textWidget: Text(
-                                  _controller.text.isEmpty
-                                      ? (getDuration(settingsController, timeTrackingController).formatDaration1H2M())
-                                      : Duration(minutes: int.parse(_controller.text)).formatDaration1H2M(),
-                                  style: TextStyle(color: _controller.text.isEmpty ? CupertinoColors.systemGrey : null)),
-                              onPressed: () {
-                                FilterHelpers.showDurationOnlyMinuteFilterWidgetPopUp(
-                                    context, _controller.text.isEmpty ? getDuration(settingsController, timeTrackingController) : Duration(minutes: int.parse(_controller.text)), (newDuration) {
-                                  setState(() {
-                                    _controller.text = newDuration.inMinutes.toString();
-                                  });
-                                });
-                              },
+                        Row(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(AppLocalizations.of(context)!.breakStr, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
                             ),
-                          ),
+                            const Spacer(),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: SizedBox(
+                                width: 50,
+                                child: BorderedWithText(
+                                  textWidget: Text(
+                                      // _controller.text.isEmpty
+                                      //     ? (getBreakDuration(settingsController, timeTrackingController).formatDaration1H2M())
+                                      //     : Duration(minutes: int.parse(_controller.text)).formatDaration1H2M(),
+                                      getBrakDurationFull(settingsController, timeTrackingController).formatDaration1H2M(),
+                                      style: TextStyle(color: _controller.text.isEmpty ? CupertinoColors.systemGrey : null)),
+                                  onPressed: () {
+                                    FilterHelpers.showDurationOnlyMinuteFilterWidgetPopUp(context, getBrakDurationFull(settingsController, timeTrackingController), (newDuration) {
+                                      setState(() {
+                                        _controller.text = newDuration.inMinutes.toString();
+                                      });
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
+                  // calculated working time without break
+                  const SizedBox(height: 25),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Align(
+                            child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(AppLocalizations.of(context)!.workTime, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(fontWeight: FontWeight.w400)),
+                            Text(AppLocalizations.of(context)!.withoutBreak, style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle),
+                          ],
+                        )),
+                        Align(
+                            alignment: Alignment.center,
+                            child: Row(children: [
+                              const Icon(CupertinoIcons.timer, size: 20),
+                              const SizedBox(width: 10),
+                              Text(
+                                getWorkTime(timeTrackingController, getBrakDurationFull(settingsController, timeTrackingController)).formatDaration1H2M(),
+                                style: const CupertinoThemeData().textTheme.textStyle.copyWith(fontSize: 20),
+                              ),
+                            ])),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -146,7 +211,7 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                CupertinoButton.filled(
+                CupertinoButton(
                   color: const Color.fromARGB(255, 203, 110, 105),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   onPressed: () {
@@ -158,25 +223,20 @@ class _QuickAddEntryFormState extends State<QuickAddEntryForm> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   onPressed: () async {
                     if (!timeTrackingController.validateOvertime(TimeEntryTemplate(start: _selectedDateTime!, end: _selectedDateTime!))) {
-                      // ContextManager.showInfoPopup(context,
-                      //     "Cannot reduce to less than daily working hours. Add a Time Entry with your working time. E.g. if you work 8 hours a day, add a Time Entry with 4 hours. The remaining 4 hours will be considered as overtime.");
                       ContextManager.showInfoPopup(context, AppLocalizations.of(context)!.errText2);
                       return;
                     }
                     if (timeTrackingController.lastStartTime == null) {
                       if (timeTrackingController.startTimeOverlaps(_selectedDateTime!, null)) {
                         setState(() {
-                          // _errorText = 'Quick add is only possible if there are no other entries after the selected time.';
-
                           _errorText = AppLocalizations.of(context)!.errText1;
                         });
                         return;
                       }
-
                       timeTrackingController.saveCurrentStartTime(_selectedDateTime!);
                     } else {
-                      Duration breakTime = _controller.text.isEmpty ? getDuration(settingsController, timeTrackingController) : Duration(minutes: (double.parse(_controller.text)).toInt());
-                      var result = timeTrackingController.stopCurrentEntry(_selectedDateTime!, settingsController, breakTime);
+                      Duration breakTime = getBrakDurationFull(settingsController, timeTrackingController);
+                      var result = timeTrackingController.stopCurrentEntry(_selectedDateTime!, settingsController, breakTime, context);
                       if (result != null) {
                         setState(() {
                           _errorText = result;

@@ -11,7 +11,7 @@ import 'package:work_log/src/view/pages/settings/contact.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MainViewSettings extends StatefulWidget {
-  MainViewSettings({Key? key}) : super(key: key);
+  const MainViewSettings({super.key});
 
   @override
   State<MainViewSettings> createState() => _MainViewSettingsState();
@@ -30,7 +30,7 @@ class _MainViewSettingsState extends State<MainViewSettings> {
     if (appData.plan == Plan.test) {
       PurchaseApi.getRemainingTestDays().then((value) {
         setState(() {
-          remainingDays = " with remaining Days: $value";
+          remainingDays = " ${AppLocalizations.of(context)!.remainingDays(value)}";
         });
       });
     } else {
@@ -40,7 +40,7 @@ class _MainViewSettingsState extends State<MainViewSettings> {
     }
   }
 
-  List<TileStrcut> listTiles_personal(BuildContext context) {
+  List<TileStrcut> listTilesPersonal(BuildContext context) {
     return [
       TileStrcut(
         title: AppLocalizations.of(context)!.worktime,
@@ -51,7 +51,7 @@ class _MainViewSettingsState extends State<MainViewSettings> {
     ];
   }
 
-  List<TileStrcut> listTiles_about(BuildContext context) {
+  List<TileStrcut> listTilesAbout(BuildContext context) {
     return [
       TileStrcut(
         title: AppLocalizations.of(context)!.about,
@@ -62,7 +62,7 @@ class _MainViewSettingsState extends State<MainViewSettings> {
     ];
   }
 
-  List<TileInfo> listTiles_purchases(BuildContext context) {
+  List<TileInfo> listTilesPurchases(BuildContext context) {
     return [
       TileInfo(
           title: "${AppLocalizations.of(context)!.currentPlan}: ${appData.plan.prettyName}$remainingDays",
@@ -89,33 +89,33 @@ class _MainViewSettingsState extends State<MainViewSettings> {
         child: SafeArea(
           child: CupertinoScrollbar(
             child: Container(
-              margin: EdgeInsets.all(10),
+              margin: const EdgeInsets.all(10),
               child: Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
-                  Align(alignment: Alignment.centerLeft, child: Text(AppLocalizations.of(context)!.settings_personal_data, style: CupertinoTextThemeData().navTitleTextStyle)),
+                  Align(alignment: Alignment.centerLeft, child: Text(AppLocalizations.of(context)!.settings_personal_data, style: const CupertinoTextThemeData().navTitleTextStyle)),
                   const SizedBox(
                     height: 10,
                   ),
-                  listView(listTiles_personal(context)),
+                  listView(listTilesPersonal(context)),
                   const SizedBox(
                     height: 60,
                   ),
-                  Align(alignment: Alignment.centerLeft, child: Text(AppLocalizations.of(context)!.about, style: CupertinoTextThemeData().navTitleTextStyle)),
+                  Align(alignment: Alignment.centerLeft, child: Text(AppLocalizations.of(context)!.about, style: const CupertinoTextThemeData().navTitleTextStyle)),
                   const SizedBox(
                     height: 10,
                   ),
-                  listView(listTiles_about(context)),
+                  listView(listTilesAbout(context)),
                   const SizedBox(
                     height: 60,
                   ),
-                  Align(alignment: Alignment.centerLeft, child: Text(AppLocalizations.of(context)!.purchases, style: CupertinoTextThemeData().navTitleTextStyle)),
+                  Align(alignment: Alignment.centerLeft, child: Text(AppLocalizations.of(context)!.purchases, style: const CupertinoTextThemeData().navTitleTextStyle)),
                   const SizedBox(
                     height: 10,
                   ),
-                  listView(listTiles_purchases(context), withDividers: true),
+                  listView(listTilesPurchases(context), withDividers: true),
                   const SizedBox(
                     height: 60,
                   ),
@@ -164,11 +164,7 @@ class TileStrcut extends TileBase {
   final Widget widget;
   final Function? onBackCallback;
 
-  TileStrcut({required title, required icon, required widget, this.onBackCallback})
-      : this.title = title,
-        this.icon = icon,
-        this.widget = widget;
-
+  TileStrcut({required this.title, required this.icon, required this.widget, this.onBackCallback});
   @override
   Widget getWidget(BorderType borderType, BuildContext context) {
     return GestureDetector(
@@ -196,11 +192,11 @@ class TileStrcut extends TileBase {
                   const SizedBox(
                     width: 20,
                   ),
-                  Text(title, style: CupertinoTextThemeData().navTitleTextStyle.copyWith(fontWeight: FontWeight.normal)),
+                  Text(title, style: const CupertinoTextThemeData().navTitleTextStyle.copyWith(fontWeight: FontWeight.normal)),
                 ],
               ),
             ),
-            Align(
+            const Align(
               alignment: Alignment.centerRight,
               child: Icon(CupertinoIcons.right_chevron, color: CupertinoColors.systemGrey),
             )
@@ -216,9 +212,7 @@ class TileInfo extends TileBase {
   final IconData icon;
   final Function onPressed;
 
-  TileInfo({required title, required icon, required this.onPressed})
-      : this.title = title,
-        this.icon = icon;
+  TileInfo({required this.title, required this.icon, required this.onPressed});
 
   @override
   Widget getWidget(BorderType borderType, BuildContext context) => CupertinoButton(

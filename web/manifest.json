@@ -1,6 +1,6 @@
 {
-    "name": "WorkTrackPro",
-    "short_name": "WorkTrackPro",
+    "name": "worklogpro",
+    "short_name": "worklogpro",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

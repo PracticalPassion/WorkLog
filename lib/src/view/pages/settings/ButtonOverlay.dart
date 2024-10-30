@@ -7,7 +7,7 @@ class NumberInputWithDoneButton extends StatefulWidget {
   final String placeholder;
   final Function(String) onCompleted;
 
-  NumberInputWithDoneButton({required this.controller, required this.placeholder, required this.onCompleted});
+  const NumberInputWithDoneButton({super.key, required this.controller, required this.placeholder, required this.onCompleted});
 
   @override
   _NumberInputWithDoneButtonState createState() => _NumberInputWithDoneButtonState();
@@ -42,7 +42,7 @@ class _NumberInputWithDoneButtonState extends State<NumberInputWithDoneButton> {
   void _showOverlay() {
     if (_overlayEntry == null) {
       _overlayEntry = _createOverlayEntry();
-      Overlay.of(context)?.insert(_overlayEntry!);
+      Overlay.of(context).insert(_overlayEntry!);
     }
   }
 

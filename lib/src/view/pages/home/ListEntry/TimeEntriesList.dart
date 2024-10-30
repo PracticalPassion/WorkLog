@@ -15,6 +15,8 @@ class TimeEntriesListWidget extends StatelessWidget {
 
     final daysMonth = TimeTrackingEntry.getDaysInMonth(timeTrackingController.currentMonth);
 
+    print('daysMonth: $daysMonth');
+
     return Expanded(
       child: CupertinoScrollbar(
         child: ListView.builder(

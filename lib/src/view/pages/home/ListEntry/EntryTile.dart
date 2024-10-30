@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
 import 'package:work_log/src/controller/purchase.dart';
-import 'package:work_log/src/controller/purchase/purchase.dart';
 import 'package:work_log/src/controller/settingsController.dart';
 import 'package:work_log/src/model/TimeEntry.dart';
 import 'package:work_log/src/view/Helper/Extentions/DateTimeExtention.dart';

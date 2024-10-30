@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:work_log/src/controller/TimeEntryController.dart';
 import 'package:work_log/src/controller/purchase.dart';
-import 'package:work_log/src/controller/purchase/AppData.dart';
-import 'package:work_log/src/controller/purchase/constant.dart';
 import 'package:work_log/src/controller/purchase/purchase.dart';
 import 'package:work_log/src/controller/settingsController.dart';
 import 'package:work_log/src/model/Month.dart';
@@ -13,14 +10,12 @@ import 'package:work_log/src/model/TimeEntry.dart';
 import 'package:work_log/src/view/macros/BottomSheetTemplate.dart';
 import 'package:work_log/src/view/macros/ContentView.dart';
 import 'package:work_log/src/view/macros/Snackbar.dart';
-import 'package:work_log/src/view/pages/settings/BaseSettings.dart';
 import 'package:work_log/src/view/pages/home/Add/FormPopUp.dart';
 import 'package:work_log/src/view/pages/home/HoursThisWeek.dart';
 import 'package:work_log/src/view/pages/home/MonthSelection.dart';
 import 'package:work_log/src/view/pages/home/ListEntry/TimeEntriesList.dart';
 import 'package:work_log/src/view/pages/home/QuickAdd/QuickAddEntryColored.dart';
 import 'package:work_log/src/view/pages/home/TotalOvertime.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:work_log/src/view/pages/settings/settings.dart';
 
@@ -76,8 +71,7 @@ class _TimeTrackingListPageState extends State<TimeTrackingListPage> {
                       GestureDetector(
                           child: Container(padding: const EdgeInsets.all(10), child: const Icon(CupertinoIcons.settings)),
                           onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => MainViewSettings()));
-                            // showCupertinoModalPopup(useRootNavigator: true, context: context, builder: (context) => BottomSheetWidget(child: MainViewSettings()));
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => const MainViewSettings()));
                           })
                     ],
                   ),
