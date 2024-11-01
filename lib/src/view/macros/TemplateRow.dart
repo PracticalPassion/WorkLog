@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:work_log/src/view/macros/BorderWithText.dart';
 
 class TemplateRow extends StatelessWidget {
@@ -10,6 +8,7 @@ class TemplateRow extends StatelessWidget {
   final bool replaceRightWidget;
 
   const TemplateRow({
+    super.key,
     required this.leftName,
     required this.rightTextWidget,
     required this.rightTextOnPressed,

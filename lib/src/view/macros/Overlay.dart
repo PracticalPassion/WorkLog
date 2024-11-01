@@ -1,12 +1,13 @@
 // overlay_component.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CustomOverlay extends StatelessWidget {
   final FocusNode focusNode;
   final VoidCallback onCompleted;
 
-  const CustomOverlay({Key? key, required this.focusNode, required this.onCompleted}) : super(key: key);
+  const CustomOverlay({super.key, required this.focusNode, required this.onCompleted});
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +19,8 @@ class CustomOverlay extends StatelessWidget {
           CupertinoButton(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             color: CupertinoColors.activeBlue,
-            child: Text('Fertig'),
             onPressed: onCompleted,
+            child: Text(AppLocalizations.of(context)!.done),
           ),
         ],
       ),

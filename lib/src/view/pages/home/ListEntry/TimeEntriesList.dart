@@ -6,7 +6,7 @@ import 'package:work_log/src/model/TimeEntry.dart';
 import 'package:work_log/src/view/pages/home/ListEntry/EntryTile.dart';
 
 class TimeEntriesListWidget extends StatelessWidget {
-  const TimeEntriesListWidget({Key? key}) : super(key: key);
+  const TimeEntriesListWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
