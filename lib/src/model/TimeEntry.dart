@@ -225,10 +225,12 @@ class TimeTrackingEntry {
     final now = DateTime.now();
     List<DateTime> days = [];
 
-    DateTime date = DateTime(month.year, month.month, 1, 12);
+    DateTime date = DateTime(month.year, month.month, 1);
     while (date.month == month.month && date.isBefore(now)) {
-      days.add(date);
-      date = date.add(const Duration(days: 1)).copyWith(hour: 12);
+      if (!days.any((d) => d.year == date.year && d.month == date.month && d.day == date.day)) {
+        days.add(date);
+      }
+      date = date.add(const Duration(days: 1));
     }
 
     days.sort((a, b) => b.compareTo(a));

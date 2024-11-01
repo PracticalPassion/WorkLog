@@ -28,7 +28,6 @@ class _VerticalSelectionState extends State<VerticalSelection> {
 
   @override
   void initState() {
-    print('selected index: ${widget.selectedIndex}');
     super.initState();
     _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
